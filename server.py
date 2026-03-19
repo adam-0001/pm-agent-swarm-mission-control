@@ -152,7 +152,7 @@ Your output MUST be structured as markdown with these sections:
 # Prioritized Feature Roadmap
 ## RICE-Scored Feature Backlog
 A markdown table with columns: Rank | Feature | Reach | Impact | Confidence | Effort | RICE Score
-Score each 1-10, RICE = (Reach × Impact × Confidence) / Effort
+Score each 1-10, RICE = (Reach x Impact x Confidence) / Effort
 ## Quarterly Groupings
 ### Q1, Q2, Q3 sections with bullet lists
 ## Dependencies
@@ -832,7 +832,7 @@ class LocalAgentExecutor:
                     {"role": "user", "content": user_message}
                 ],
                 stream=True,
-                stop=["<|endoftext|>", "<|im_start|>", "<|im_end|>", "<|eot_id|>"],
+                stop=["<|endoftext|>", "<|im_start|>", "<|im_end|>", "<|eot_id|>", "<end>", "</answer>"],
             )
 
             async for chunk in stream:
@@ -917,6 +917,12 @@ class LocalAgentExecutor:
                       '<|im_start|>assistant', '<|im_start|>system', '<|eot_id|>',
                       '<|start_header_id|>', '<|end_header_id|>']:
             text = text.replace(token, '')
+        # Truncate at first <end> tag (model signaling it's done, rest is repetition)
+        end_match = re.search(r'\n*<end>\s*', text)
+        if end_match:
+            text = text[:end_match.start()]
+        # Remove <answer>...</answer> wrapper tags
+        text = re.sub(r'</?answer>', '', text)
         # Remove "## Final Output Generation:" preamble (Qwen self-narration)
         final_output_match = re.search(
             r'## Final Output Generation:.*?\n\*\(Start of Actual Text\)\*\n',
