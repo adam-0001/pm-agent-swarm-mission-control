@@ -1,0 +1,9 @@
+# Required for all modes
+tornado>=6.0
+python-dotenv>=1.0.0
+
+# Required for --live mode (Anthropic API)
+anthropic>=0.40.0
+
+# Required for --local mode (Ollama via OpenAI-compatible API)
+openai>=1.0.0

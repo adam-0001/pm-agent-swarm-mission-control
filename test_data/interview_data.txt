@@ -1,0 +1,102 @@
+INTERVIEW 1 — Rachel, Senior Software Engineer, Series B startup (120 people)
+Role: Full-stack engineer, 3 years remote
+Date: March 2, 2026
+
+Q: Walk me through a typical day.
+A: "I get to my desk at 9, check Slack — there's already 40 unread messages. I try to start coding but there's a standup at 9:30, then a design review at 10:15. By the time I actually get into deep work it's 11am, and then lunch. Afternoon is usually better but there's always a random meeting that breaks up a 3-hour block into two useless 45-minute chunks."
+
+Q: How do you currently manage focus time?
+A: "I tried blocking my calendar but people just book over it. I use Do Not Disturb on Slack but then I miss actually urgent things. My manager says 'just say no to meetings' but it's not that simple when the VP asks for a sync."
+
+Q: What would an ideal solution look like?
+A: "Something that knows the difference between 'Rachel is in deep work on the auth refactor' and 'Rachel is just browsing Reddit.' If it could tell my team 'she's in a focus session, here's when she'll be available' that would be incredible. Like an AI executive assistant for focus."
+
+Q: How much time do you lose to context switching?
+A: "Easily 2-3 hours a day. I tracked it for a week once. 23 context switches on Monday alone. Each one costs me about 15 minutes to get back into flow."
+
+Q: Would you pay for this?
+A: "If it actually worked and my company would expense it? Absolutely. $20-30/month easy. The ROI is obvious — if I get back even 1 hour of productive coding time, that's worth way more than $30."
+
+---
+
+INTERVIEW 2 — David, Product Designer, Mid-market SaaS company (300 people)
+Role: Senior Product Designer, 4 years remote
+Date: March 4, 2026
+
+Q: What's your biggest productivity challenge?
+A: "Figma work requires long uninterrupted sessions. I need at least 90 minutes to do meaningful design work. But my calendar looks like Swiss cheese — 30-minute meetings scattered throughout the day. By the time I context-switch from a meeting back to Figma, re-orient myself to where I was, 20 minutes are gone."
+
+Q: What tools do you use now?
+A: "RescueTime for tracking, but I never look at the reports. Clockwise for calendar optimization, which helps somewhat. I tried Focus@Will for music. None of these address the core problem: Slack is the real enemy. I get DMed probably 60 times a day."
+
+Q: How do you handle urgent messages during focus time?
+A: "That's the dilemma. If I go DND, I miss when engineering is blocked on my designs. If I stay available, I get interrupted constantly. I need something smarter — something that can look at the message and decide 'this is urgent, interrupt her' versus 'this can wait 45 minutes.'"
+
+Q: What would make you switch from your current setup?
+A: "If it actually reduced my meeting load somehow. Like, if it could look at my meetings and say 'you don't need to be in this one, here's a summary after' — that would be game-changing. Also, if it could auto-generate my end-of-day status update. I spend 15 minutes every day writing what I did in Slack."
+
+Q: Price sensitivity?
+A: "Our team already pays for Clockwise ($8/user/month). If this replaced Clockwise and RescueTime and did more, $25/user/month is fine. Team license would be ideal."
+
+---
+
+INTERVIEW 3 — Marcus, Engineering Manager, Enterprise company (2000 people)
+Role: Manages 8 engineers, 5 years remote
+Date: March 6, 2026
+
+Q: What's the biggest pain point for your team's productivity?
+A: "Meeting overload, full stop. My team averages 18 hours of meetings per week. That's almost half their time. The engineers are frustrated, I'm frustrated. We've tried 'no meeting Wednesdays' but it doesn't stick because cross-team dependencies always override it."
+
+Q: How do you track your team's deep work time?
+A: "I don't, really. I ask them in 1:1s 'are you getting enough focus time?' and they always say no. I have no data. If I could see a dashboard showing 'your team got 12 hours of deep work this week versus 18 last week' I could actually advocate for change with leadership."
+
+Q: What about individual focus tools?
+A: "Some of my team uses Pomodoro timers or website blockers. But these are individual solutions to a systemic problem. The meetings aren't going away because one person installs a Chrome extension. I need something that works at the team level — something that can coordinate focus blocks across the team."
+
+Q: What would you need to justify purchasing a tool like this?
+A: "Hard data. Show me that my team's cycle time improved by X% after using this tool. Show me they shipped more PRs, closed more tickets, whatever. ROI metrics that I can put in a slide for my director. Without data, I can't get budget approval."
+
+Q: Budget range?
+A: "For 8 people? If it genuinely improves output, $50/user/month is justifiable. We spend more than that on JetBrains licenses. But I need a team plan, admin dashboard, and SSO."
+
+---
+
+INTERVIEW 4 — Priya, VP of Product, Growth-stage startup (80 people)
+Role: Leads product team of 6 PMs, 2 years remote-first
+Date: March 8, 2026
+
+Q: How does context switching affect your PMs?
+A: "My PMs are in meetings 60-70% of their day. Discovery calls, sprint planning, stakeholder updates, design reviews. They're the connective tissue of the org. The problem is they have zero time for strategic thinking — the deep work of actually analyzing data, writing strategies, thinking about the market."
+
+Q: What have you tried?
+A: "We instituted Focus Fridays — no meetings on Fridays. It lasted 3 weeks before someone scheduled a board prep meeting on a Friday. We tried async standups via Slack but people still default to synchronous communication. The culture problem is harder than the technology problem."
+
+Q: If you could wave a magic wand, what would you build?
+A: "An AI that sits between my team and the rest of the org. It triages incoming requests, batches non-urgent Slack messages, auto-declines meetings where they're optional attendees, and generates the status updates they spend hours writing. Basically, give my PMs back 10 hours a week."
+
+Q: How would you measure success?
+A: "Two things: (1) self-reported satisfaction — are my PMs happier? and (2) strategic output — are they producing better PRDs, better research docs, better roadmaps? If the quality of their thinking improves because they have time to think, that's the ultimate metric."
+
+Q: Would this need to be company-wide or team-specific?
+A: "Start with my product team as a pilot. If it works, I'd push for company-wide. But you need to show value in 30 days or people will churn."
+
+---
+
+INTERVIEW 5 — James, Freelance Developer, Solo
+Role: Independent contractor, 7 years remote
+Date: March 10, 2026
+
+Q: How do you manage your focus as a solo worker?
+A: "I use the Pomodoro technique religiously. 25 minutes on, 5 minutes off. But even then, client Slack messages break my concentration. I'm in 4 different client Slack workspaces. The notification noise is insane."
+
+Q: What tools do you use?
+A: "Toggl for time tracking, because I bill hourly. Forest app for phone distraction. A physical 'do not disturb' sign on my home office door for my family. It's all manual and fragile."
+
+Q: What's missing from current solutions?
+A: "Cross-workspace awareness. No tool understands that I'm context-switching between Client A's Slack, Client B's Jira, and Client C's email. Each workspace is a silo. I need something that can see across all my work contexts and help me batch similar tasks together."
+
+Q: What would you pay?
+A: "As a freelancer, I'm price sensitive. $15/month max. But if it genuinely saves me 1 billable hour per day at my $150/hour rate, it pays for itself 300x over."
+
+Q: Any concerns?
+A: "Privacy. I don't want some tool reading my Slack messages and sending data to a server. It needs to be local-first or at minimum, not store message content. My clients have NDAs."

@@ -1,0 +1,49 @@
+COMPETITIVE LANDSCAPE — Focus/Productivity Tools (March 2026)
+
+1. CLOCKWISE ($8/user/month)
+- Calendar optimization and smart scheduling
+- "Focus Time" auto-blocks on calendar
+- Team analytics dashboard
+- Strengths: Good calendar integration, team-level features
+- Weaknesses: No Slack integration, no distraction blocking, purely calendar-based
+
+2. RECLAIM.AI ($10/user/month)
+- AI calendar assistant
+- Auto-schedules habits, focus time, meetings
+- Slack status sync
+- Strengths: Smart scheduling, good Slack integration
+- Weaknesses: Doesn't actually block distractions, no productivity measurement, calendar-only approach
+
+3. FREEDOM ($8.99/month individual)
+- Website and app blocker
+- Scheduled focus sessions
+- Cross-device blocking
+- Strengths: Effective distraction blocking, simple UX
+- Weaknesses: No team features, no calendar awareness, no smart triage, individual-only
+
+4. RESCUETIME ($12/month premium)
+- Automatic time tracking
+- Productivity scoring
+- Weekly reports
+- Strengths: Good analytics, passive tracking
+- Weaknesses: Reports only (no intervention), no team features, no AI intelligence, aging product
+
+5. CENTERED ($15/month)
+- Virtual coworking with AI coach
+- Flow state detection via music
+- Task-based focus sessions
+- Strengths: Novel approach, community element
+- Weaknesses: Niche, no integrations, no team/enterprise features
+
+6. SLACK (Enterprise Grid: $12.50/user/month)
+- Has built-in DND/pause notifications
+- Scheduled send feature
+- Huddles as meeting alternative
+- Reality: Slack IS the distraction. Their DND is binary — all or nothing. No smart message triage.
+
+KEY GAPS IN MARKET:
+- NO competitor does smart message triage (urgent vs. non-urgent)
+- NO competitor combines calendar + Slack + distraction blocking in one tool
+- NO competitor provides team-level focus analytics with manager dashboards
+- NO competitor auto-generates end-of-day status updates
+- Privacy-first/local-processing approach is unexplored territory

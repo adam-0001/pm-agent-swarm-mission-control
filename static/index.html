@@ -1,0 +1,3441 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>PM Agent Swarm - Mission Control</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<script
+			crossorigin
+			src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"
+		></script>
+		<script
+			crossorigin
+			src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"
+		></script>
+		<script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family:
+					'Inter',
+					-apple-system,
+					BlinkMacSystemFont,
+					'Segoe UI',
+					sans-serif;
+				background: #fafafa;
+				color: #111;
+				height: 100vh;
+				overflow: hidden;
+			}
+
+			.container {
+				display: flex;
+				flex-direction: column;
+				height: 100vh;
+				background: #fafafa;
+			}
+
+			/* Header */
+			.header {
+				background: #fff;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+				padding: 16px 24px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.header-left {
+				flex: 1;
+			}
+
+			.header-title {
+				font-size: 18px;
+				font-weight: 600;
+				color: #111;
+				letter-spacing: -0.3px;
+			}
+
+			.header-subtitle {
+				font-size: 12px;
+				color: #666;
+				margin-top: 2px;
+			}
+
+			.header-center {
+				flex: 1;
+				display: flex;
+				gap: 24px;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.metric-pill {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+
+			.metric-label {
+				color: #999;
+				font-size: 10px;
+				font-weight: 500;
+				text-transform: uppercase;
+				letter-spacing: 0.3px;
+				margin-bottom: 3px;
+			}
+
+			.metric-value {
+				font-family: 'SF Mono', 'Monaco', monospace;
+				font-size: 15px;
+				font-weight: 600;
+				color: #111;
+			}
+
+			.header-right {
+				flex: 1;
+				display: flex;
+				gap: 12px;
+				justify-content: flex-end;
+				align-items: center;
+			}
+
+			.connection-status {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				font-size: 11px;
+				color: #999;
+			}
+
+			.connection-dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: #ddd;
+				transition: all 0.3s ease;
+			}
+
+			.connection-dot.connected {
+				background: #22c55e;
+			}
+
+			.btn {
+				padding: 10px 18px;
+				border: none;
+				border-radius: 8px;
+				font-size: 13px;
+				font-weight: 500;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.btn-primary {
+				background: #111;
+				color: #fff;
+			}
+
+			.btn-primary:hover:not(:disabled) {
+				background: #333;
+			}
+
+			.btn-primary:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+
+			.btn-secondary {
+				background: #f0f0f0;
+				color: #111;
+				border: 1px solid #e0e0e0;
+			}
+
+			.btn-secondary:hover:not(:disabled) {
+				background: #e8e8e8;
+			}
+
+			.btn-secondary:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+
+			.btn-small {
+				padding: 8px 12px;
+				border: none;
+				border-radius: 6px;
+				font-size: 12px;
+				font-weight: 500;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+			}
+
+			.btn-export {
+				background: #f0f0f0;
+				color: #111;
+				border: 1px solid #e0e0e0;
+			}
+
+			.btn-export:hover {
+				background: #e8e8e8;
+			}
+
+			/* Main Content */
+			.main-content {
+				display: flex;
+				flex: 1;
+				gap: 0;
+				overflow: hidden;
+			}
+
+			.left-panel {
+				width: 220px;
+				background: #fff;
+				border-right: 1px solid rgba(0, 0, 0, 0.06);
+				padding: 16px;
+				overflow-y: auto;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+
+			.left-panel-title {
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				color: #999;
+				letter-spacing: 0.4px;
+				margin-bottom: 8px;
+				padding: 0 4px;
+			}
+
+			.agent-card {
+				padding: 12px;
+				border: 1px solid rgba(0, 0, 0, 0.06);
+				border-radius: 12px;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				background: #fff;
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.agent-card:hover {
+				background: #f8f8f8;
+				border-color: rgba(0, 0, 0, 0.12);
+			}
+
+			.agent-card.selected {
+				background: #f0f7ff;
+				border-color: #0066ff;
+			}
+
+			.agent-monogram {
+				width: 28px;
+				height: 28px;
+				border-radius: 8px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 11px;
+				font-weight: 700;
+				color: #fff;
+				flex-shrink: 0;
+			}
+
+			.agent-info {
+				flex: 1;
+				min-width: 0;
+			}
+
+			.agent-name {
+				font-size: 12px;
+				font-weight: 600;
+				color: #111;
+			}
+
+			.agent-status-line {
+				font-size: 10px;
+				margin-top: 3px;
+				font-weight: 500;
+				display: flex;
+				align-items: center;
+				gap: 4px;
+			}
+
+			.status-dot {
+				width: 6px;
+				height: 6px;
+				border-radius: 50%;
+			}
+
+			.status-dot.idle {
+				background: #ddd;
+			}
+			.status-dot.running {
+				background: #3b82f6;
+				animation: pulse-dot 2s ease-in-out infinite;
+			}
+			.status-dot.awaiting-review {
+				background: #f59e0b;
+			}
+			.status-dot.approved {
+				background: #22c55e;
+			}
+			.status-dot.rejected {
+				background: #ef4444;
+			}
+			.status-dot.revising {
+				background: #f97316;
+			}
+			.status-dot.completed {
+				background: #10b981;
+			}
+
+			@keyframes pulse-dot {
+				0%,
+				100% {
+					opacity: 1;
+				}
+				50% {
+					opacity: 0.5;
+				}
+			}
+
+			.checkpoint-marker {
+				text-align: center;
+				padding: 8px 0;
+				font-size: 10px;
+				color: #999;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.4px;
+				margin: 4px 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 6px;
+			}
+
+			.checkpoint-dot {
+				width: 4px;
+				height: 4px;
+				border-radius: 50%;
+				background: #999;
+			}
+
+			/* Right Panel */
+			.right-panel {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				background: #fff;
+			}
+
+			.right-panel-header {
+				padding: 20px;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+				background: #fff;
+			}
+
+			.agent-header {
+				font-size: 18px;
+				font-weight: 600;
+				color: #111;
+				margin-bottom: 4px;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.agent-role {
+				font-size: 12px;
+				color: #666;
+				margin-bottom: 12px;
+			}
+
+			.metadata-row {
+				display: flex;
+				gap: 12px;
+				flex-wrap: wrap;
+				align-items: center;
+			}
+
+			.model-badge {
+				background: #f0f0f0;
+				border: 1px solid #e0e0e0;
+				padding: 5px 12px;
+				border-radius: 6px;
+				font-size: 10px;
+				font-weight: 500;
+				color: #333;
+			}
+
+			.tool-pill {
+				background: #f0f7ff;
+				border: 1px solid #d0e8ff;
+				padding: 5px 12px;
+				border-radius: 6px;
+				font-size: 10px;
+				font-weight: 500;
+				color: #0066ff;
+			}
+
+			.context-pill {
+				background: #f3f0ff;
+				border: 1px solid #e0d5ff;
+				padding: 5px 12px;
+				border-radius: 6px;
+				font-size: 10px;
+				font-weight: 500;
+				color: #7c3aed;
+			}
+
+			.output-section {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+			}
+
+			.plan-section {
+				padding: 16px 20px;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+				background: #f8f9ff;
+			}
+
+			.plan-title {
+				font-size: 13px;
+				font-weight: 600;
+				color: #111;
+				margin-bottom: 12px;
+			}
+
+			.plan-step {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				padding: 8px 0;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+			}
+
+			.plan-step:last-child {
+				border-bottom: none;
+			}
+
+			.plan-agent-name {
+				font-size: 12px;
+				font-weight: 600;
+				color: #111;
+			}
+			.plan-focus {
+				font-size: 11px;
+				color: #666;
+			}
+
+			.thinking-section {
+				border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+				background: #f9f7ff;
+			}
+
+			.thinking-header {
+				padding: 12px 20px;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				user-select: none;
+				font-size: 12px;
+				font-weight: 600;
+				color: #666;
+			}
+
+			.thinking-toggle {
+				display: inline-flex;
+				align-items: center;
+				transition: transform 0.2s ease;
+			}
+
+			.thinking-toggle.open {
+				transform: rotate(90deg);
+			}
+
+			.thinking-content {
+				padding: 0 20px 12px 20px;
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+				max-height: 150px;
+				overflow-y: auto;
+			}
+
+			.thinking-step {
+				background: #fff;
+				border: 1px solid rgba(0, 0, 0, 0.06);
+				border-radius: 8px;
+				padding: 10px;
+				font-size: 11px;
+				color: #555;
+				font-family: 'SF Mono', 'Monaco', monospace;
+				animation: fadeIn 0.3s ease;
+			}
+
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+				}
+				to {
+					opacity: 1;
+				}
+			}
+
+			.thinking-pulse {
+				display: inline-block;
+				width: 6px;
+				height: 6px;
+				background: #7c3aed;
+				border-radius: 50%;
+				animation: pulse-dot 2s ease-in-out infinite;
+			}
+
+			.summary-panel {
+				padding: 12px 20px;
+				background: #f0fdf4;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+				flex-shrink: 0;
+			}
+
+			.summary-banner {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 16px;
+			}
+
+			.summary-banner-left {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+			}
+
+			.summary-title {
+				font-size: 14px;
+				font-weight: 600;
+				color: #166534;
+			}
+
+			.summary-metrics {
+				display: flex;
+				gap: 16px;
+			}
+
+			.summary-metric {
+				display: flex;
+				align-items: baseline;
+				gap: 4px;
+			}
+
+			.summary-metric-value {
+				font-size: 14px;
+				font-weight: 700;
+				color: #111;
+			}
+
+			.summary-metric-label {
+				font-size: 10px;
+				color: #666;
+				text-transform: uppercase;
+			}
+
+			.summary-actions {
+				display: flex;
+				gap: 8px;
+			}
+
+			.summary-detail {
+				margin-top: 10px;
+				padding-top: 10px;
+				border-top: 1px solid rgba(0, 0, 0, 0.06);
+			}
+
+			.summary-subtitle {
+				font-size: 12px;
+				font-weight: 600;
+				color: #111;
+				margin-bottom: 6px;
+			}
+
+			.summary-next-steps ol {
+				margin-left: 20px;
+				font-size: 12px;
+				color: #333;
+				line-height: 1.5;
+			}
+
+			.output-container {
+				flex: 1;
+				overflow-y: auto;
+				padding: 20px;
+				font-size: 13px;
+				line-height: 1.6;
+				color: #333;
+			}
+
+			.output-empty {
+				color: #999;
+				font-style: italic;
+			}
+
+			/* Markdown styles */
+			.markdown-output h1,
+			.markdown-output h2,
+			.markdown-output h3,
+			.markdown-output h4,
+			.markdown-output h5,
+			.markdown-output h6 {
+				color: #111;
+				font-weight: 600;
+				margin-top: 16px;
+				margin-bottom: 8px;
+			}
+
+			.markdown-output h1 {
+				font-size: 18px;
+			}
+			.markdown-output h2 {
+				font-size: 16px;
+			}
+			.markdown-output h3 {
+				font-size: 14px;
+			}
+
+			.markdown-output p {
+				margin-bottom: 12px;
+			}
+
+			.markdown-output strong {
+				font-weight: 600;
+				color: #111;
+			}
+
+			.markdown-output em {
+				font-style: italic;
+			}
+
+			.markdown-output code {
+				background: #f0f0f0;
+				padding: 2px 6px;
+				border-radius: 4px;
+				font-family: 'SF Mono', 'Monaco', monospace;
+				font-size: 12px;
+				color: #0066ff;
+			}
+
+			.markdown-output pre {
+				background: #f0f0f0;
+				border: 1px solid #e0e0e0;
+				border-radius: 8px;
+				padding: 12px;
+				overflow-x: auto;
+				margin-bottom: 12px;
+			}
+
+			.markdown-output pre code {
+				background: none;
+				padding: 0;
+				color: #333;
+			}
+
+			.markdown-output ul,
+			.markdown-output ol {
+				margin-left: 20px;
+				margin-bottom: 12px;
+			}
+
+			.markdown-output li {
+				margin-bottom: 4px;
+			}
+
+			.markdown-output table {
+				border-collapse: collapse;
+				width: 100%;
+				margin-bottom: 12px;
+				border: 1px solid #e0e0e0;
+				border-radius: 8px;
+				overflow: hidden;
+			}
+
+			.markdown-output th {
+				background: #f0f0f0;
+				padding: 10px;
+				text-align: left;
+				font-weight: 600;
+				border-bottom: 1px solid #e0e0e0;
+				border-right: 1px solid #e0e0e0;
+			}
+
+			.markdown-output th:last-child {
+				border-right: none;
+			}
+
+			.markdown-output td {
+				padding: 10px;
+				border-bottom: 1px solid #e0e0e0;
+				border-right: 1px solid #e0e0e0;
+			}
+
+			.markdown-output td:last-child {
+				border-right: none;
+			}
+
+			.markdown-output tr:nth-child(even) {
+				background: #fafafa;
+			}
+
+			.markdown-output blockquote {
+				border-left: 3px solid #0066ff;
+				padding-left: 12px;
+				margin-left: 0;
+				margin-bottom: 12px;
+				color: #666;
+				font-style: italic;
+			}
+
+			.output-toolbar {
+				display: flex;
+				justify-content: flex-end;
+				gap: 6px;
+				padding: 6px 20px;
+				border-top: 1px solid rgba(0, 0, 0, 0.06);
+				background: #fafafa;
+				flex-shrink: 0;
+			}
+
+			.export-toolbar {
+				display: flex;
+				justify-content: flex-end;
+				gap: 8px;
+				padding: 8px 20px;
+				border-top: 1px solid rgba(0, 0, 0, 0.06);
+				background: #fafafa;
+			}
+
+			/* Full-screen output modal */
+			.fullscreen-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(0, 0, 0, 0.5);
+				z-index: 1000;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				animation: fadeIn 0.15s ease;
+			}
+
+			.fullscreen-modal {
+				background: #fff;
+				border-radius: 16px;
+				width: 90vw;
+				height: 90vh;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+				box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+			}
+
+			.fullscreen-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 16px 24px;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+				flex-shrink: 0;
+			}
+
+			.fullscreen-header-left {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.fullscreen-header-title {
+				font-size: 16px;
+				font-weight: 600;
+				color: #111;
+			}
+
+			.fullscreen-header-actions {
+				display: flex;
+				gap: 8px;
+			}
+
+			.fullscreen-close {
+				padding: 6px 12px;
+				background: #f0f0f0;
+				border: 1px solid #e0e0e0;
+				border-radius: 6px;
+				font-size: 12px;
+				font-weight: 500;
+				cursor: pointer;
+				color: #333;
+			}
+
+			.fullscreen-close:hover {
+				background: #e8e8e8;
+			}
+
+			.fullscreen-content {
+				flex: 1;
+				overflow-y: auto;
+				padding: 24px 32px;
+				font-size: 14px;
+				line-height: 1.7;
+				color: #333;
+			}
+
+			.fullscreen-content .markdown-output h1 {
+				font-size: 22px;
+			}
+			.fullscreen-content .markdown-output h2 {
+				font-size: 18px;
+			}
+			.fullscreen-content .markdown-output h3 {
+				font-size: 16px;
+			}
+			.fullscreen-content .markdown-output p {
+				margin-bottom: 14px;
+			}
+			.fullscreen-content .markdown-output table {
+				font-size: 13px;
+			}
+			.fullscreen-content .markdown-output li {
+				margin-bottom: 6px;
+			}
+
+			.guide-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(0, 0, 0, 0.4);
+				z-index: 2000;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				animation: fadeIn 0.2s ease;
+			}
+
+			.guide-modal {
+				background: #fff;
+				border-radius: 16px;
+				width: 560px;
+				max-height: 80vh;
+				overflow-y: auto;
+				box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+				padding: 32px;
+			}
+
+			.guide-title {
+				font-size: 20px;
+				font-weight: 600;
+				color: #111;
+				margin-bottom: 4px;
+			}
+
+			.guide-subtitle {
+				font-size: 13px;
+				color: #666;
+				margin-bottom: 24px;
+			}
+
+			.guide-steps {
+				display: flex;
+				flex-direction: column;
+				gap: 16px;
+				margin-bottom: 24px;
+			}
+
+			.guide-step {
+				display: flex;
+				gap: 12px;
+				align-items: flex-start;
+			}
+
+			.guide-step-num {
+				width: 24px;
+				height: 24px;
+				border-radius: 50%;
+				background: #111;
+				color: #fff;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 12px;
+				font-weight: 600;
+				flex-shrink: 0;
+			}
+
+			.guide-step-content {
+				flex: 1;
+			}
+
+			.guide-step-title {
+				font-size: 13px;
+				font-weight: 600;
+				color: #111;
+				margin-bottom: 2px;
+			}
+
+			.guide-step-desc {
+				font-size: 12px;
+				color: #666;
+				line-height: 1.5;
+			}
+
+			.guide-modes {
+				background: #f8f8f8;
+				border-radius: 10px;
+				padding: 14px;
+				margin-bottom: 24px;
+			}
+
+			.guide-modes-title {
+				font-size: 12px;
+				font-weight: 600;
+				color: #111;
+				margin-bottom: 8px;
+			}
+
+			.guide-mode-row {
+				display: flex;
+				align-items: baseline;
+				gap: 8px;
+				font-size: 12px;
+				color: #555;
+				margin-bottom: 4px;
+			}
+
+			.guide-mode-row:last-child {
+				margin-bottom: 0;
+			}
+
+			.guide-mode-code {
+				font-family: 'SF Mono', 'Monaco', monospace;
+				font-size: 11px;
+				background: #e8e8e8;
+				padding: 2px 6px;
+				border-radius: 4px;
+				color: #111;
+			}
+
+			.guide-close-btn {
+				width: 100%;
+				padding: 12px;
+				background: #111;
+				color: #fff;
+				border: none;
+				border-radius: 8px;
+				font-size: 14px;
+				font-weight: 500;
+				cursor: pointer;
+				transition: background 0.2s ease;
+			}
+
+			.guide-close-btn:hover {
+				background: #333;
+			}
+
+			.agent-review-card {
+				border: 1px solid rgba(0, 0, 0, 0.08);
+				border-radius: 12px;
+				padding: 14px;
+				margin-bottom: 8px;
+				background: #fff;
+			}
+
+			.agent-review-card.approved {
+				border-color: #22c55e;
+				background: #f0fdf4;
+			}
+
+			.agent-review-card.rejected {
+				border-color: #ef4444;
+				background: #fef2f2;
+			}
+
+			.agent-review-header {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				margin-bottom: 8px;
+			}
+
+			.agent-review-preview {
+				font-size: 12px;
+				color: #555;
+				margin-bottom: 12px;
+				padding: 10px;
+				background: rgba(0, 0, 0, 0.02);
+				border-radius: 6px;
+				font-family: 'SF Mono', 'Monaco', monospace;
+			}
+
+			.agent-review-buttons {
+				display: flex;
+				gap: 8px;
+			}
+
+			.btn-review-approve {
+				flex: 1;
+				padding: 8px 12px;
+				background: #22c55e;
+				color: #fff;
+				border: none;
+				border-radius: 6px;
+				font-weight: 500;
+				cursor: pointer;
+				font-size: 12px;
+				transition: all 0.2s ease;
+			}
+
+			.btn-review-approve:hover {
+				background: #16a34a;
+			}
+
+			.btn-review-reject {
+				flex: 1;
+				padding: 8px 12px;
+				background: #ef4444;
+				color: #fff;
+				border: none;
+				border-radius: 6px;
+				font-weight: 500;
+				cursor: pointer;
+				font-size: 12px;
+				transition: all 0.2s ease;
+			}
+
+			.btn-review-reject:hover {
+				background: #dc2626;
+			}
+
+			.hitl-panel {
+				border-top: 1px solid #fbbf24;
+				padding: 10px 20px;
+				background: #fffbf0;
+				animation: slideUp 0.2s ease;
+				flex-shrink: 0;
+			}
+
+			.hitl-panel.expanded {
+				max-height: 35vh;
+				overflow-y: auto;
+			}
+
+			@keyframes slideUp {
+				from {
+					transform: translateY(10px);
+					opacity: 0;
+				}
+				to {
+					transform: translateY(0);
+					opacity: 1;
+				}
+			}
+
+			.hitl-bar {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+
+			.hitl-bar-info {
+				flex: 1;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				min-width: 0;
+			}
+
+			.hitl-bar-label {
+				font-size: 11px;
+				font-weight: 600;
+				color: #d97706;
+				text-transform: uppercase;
+				letter-spacing: 0.3px;
+				white-space: nowrap;
+			}
+
+			.hitl-bar-stage {
+				font-size: 12px;
+				font-weight: 500;
+				color: #111;
+				white-space: nowrap;
+			}
+
+			.hitl-bar-agents {
+				display: flex;
+				gap: 4px;
+			}
+
+			.hitl-agent-chip {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				padding: 3px 8px;
+				border-radius: 6px;
+				font-size: 10px;
+				font-weight: 600;
+				border: 1px solid #e0e0e0;
+				background: #fff;
+				cursor: pointer;
+				transition: all 0.15s ease;
+			}
+
+			.hitl-agent-chip.approved {
+				background: #f0fdf4;
+				border-color: #22c55e;
+				color: #166534;
+			}
+
+			.hitl-agent-chip.rejected {
+				background: #fef2f2;
+				border-color: #ef4444;
+				color: #991b1b;
+			}
+
+			.hitl-chip-mono {
+				width: 16px;
+				height: 16px;
+				border-radius: 4px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 8px;
+				font-weight: 700;
+				color: #fff;
+			}
+
+			.hitl-bar-actions {
+				display: flex;
+				gap: 6px;
+				flex-shrink: 0;
+			}
+
+			.btn-approve {
+				padding: 7px 14px;
+				background: #22c55e;
+				color: #fff;
+				border: none;
+				border-radius: 6px;
+				font-weight: 500;
+				cursor: pointer;
+				transition: all 0.15s ease;
+				font-size: 12px;
+			}
+
+			.btn-approve:hover {
+				background: #16a34a;
+			}
+			.btn-approve:disabled {
+				opacity: 0.4;
+				cursor: not-allowed;
+			}
+
+			.btn-reject {
+				padding: 7px 14px;
+				background: #fff;
+				color: #ef4444;
+				border: 1px solid #ef4444;
+				border-radius: 6px;
+				font-weight: 500;
+				cursor: pointer;
+				transition: all 0.15s ease;
+				font-size: 12px;
+			}
+
+			.btn-reject:hover {
+				background: #fef2f2;
+			}
+
+			.btn-submit-decisions {
+				padding: 7px 14px;
+				background: #111;
+				color: #fff;
+				border: none;
+				border-radius: 6px;
+				font-weight: 500;
+				cursor: pointer;
+				font-size: 12px;
+			}
+
+			.btn-submit-decisions:disabled {
+				opacity: 0.4;
+				cursor: not-allowed;
+			}
+			.btn-submit-decisions:hover:not(:disabled) {
+				background: #333;
+			}
+
+			.hitl-expand-section {
+				margin-top: 10px;
+				padding-top: 10px;
+				border-top: 1px solid rgba(0, 0, 0, 0.06);
+			}
+
+			.hitl-feedback-row {
+				display: flex;
+				gap: 8px;
+				align-items: flex-start;
+			}
+
+			.hitl-feedback-input {
+				flex: 1;
+				padding: 8px 10px;
+				background: #fff;
+				border: 1px solid #e0e0e0;
+				border-radius: 6px;
+				font-size: 12px;
+				font-family: 'Inter', sans-serif;
+				resize: none;
+				height: 36px;
+			}
+
+			.hitl-feedback-input:focus {
+				outline: none;
+				border-color: #0066ff;
+			}
+
+			.context-input-panel {
+				display: flex;
+				flex-direction: column;
+				gap: 0;
+				height: 100%;
+			}
+
+			.context-form {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				gap: 20px;
+				padding: 20px;
+				overflow-y: auto;
+			}
+
+			.context-form-section {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.context-form-label {
+				font-size: 10px;
+				font-weight: 700;
+				text-transform: uppercase;
+				color: #999;
+				letter-spacing: 0.4px;
+			}
+
+			.context-textarea {
+				width: 100%;
+				padding: 12px;
+				background: #fff;
+				border: 1px solid #e0e0e0;
+				border-radius: 12px;
+				color: #111;
+				font-family:
+					'Inter',
+					-apple-system,
+					BlinkMacSystemFont,
+					'Segoe UI',
+					sans-serif;
+				font-size: 13px;
+				line-height: 1.5;
+				resize: vertical;
+			}
+
+			.context-textarea:focus {
+				outline: none;
+				border-color: #0066ff;
+				box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1);
+			}
+
+			.context-textarea.product-desc {
+				min-height: 80px;
+			}
+
+			.context-textarea.interview-data {
+				min-height: 120px;
+			}
+
+			.context-textarea.competitive-notes {
+				min-height: 80px;
+			}
+
+			.context-textarea.additional-context {
+				min-height: 60px;
+			}
+
+			.context-panel-header {
+				padding: 20px;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+				background: #fff;
+			}
+
+			.context-panel-title {
+				font-size: 18px;
+				font-weight: 600;
+				color: #111;
+				margin-bottom: 4px;
+			}
+
+			.context-panel-subtitle {
+				font-size: 12px;
+				color: #666;
+			}
+
+			.context-panel-hint {
+				font-size: 11px;
+				color: #999;
+				margin-top: 8px;
+				font-style: italic;
+			}
+
+			.file-upload-section {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.file-upload-area {
+				border: 2px dashed #e0e0e0;
+				border-radius: 12px;
+				padding: 16px;
+				text-align: center;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				background: #fafafa;
+			}
+
+			.file-upload-area:hover {
+				border-color: #0066ff;
+				background: #f0f7ff;
+			}
+
+			.file-upload-area.dragging {
+				border-color: #0066ff;
+				background: #f0f7ff;
+			}
+
+			.file-upload-text {
+				font-size: 12px;
+				color: #666;
+			}
+
+			.file-upload-hint {
+				font-size: 10px;
+				color: #999;
+				margin-top: 4px;
+			}
+
+			.uploaded-files {
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+			}
+
+			.uploaded-file-item {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 8px 12px;
+				background: #f0f7ff;
+				border: 1px solid #d0e8ff;
+				border-radius: 8px;
+				font-size: 11px;
+			}
+
+			.uploaded-file-name {
+				font-weight: 500;
+				color: #0066ff;
+			}
+
+			.uploaded-file-size {
+				color: #999;
+				margin-left: 8px;
+			}
+
+			.uploaded-file-remove {
+				background: none;
+				border: none;
+				color: #999;
+				cursor: pointer;
+				font-size: 14px;
+				padding: 0 4px;
+			}
+
+			.uploaded-file-remove:hover {
+				color: #ef4444;
+			}
+
+			.feedback-input {
+				width: 100%;
+				padding: 10px;
+				margin-top: 12px;
+				background: #fff;
+				border: 1px solid #e0e0e0;
+				border-radius: 6px;
+				color: #111;
+				font-family: 'SF Mono', 'Monaco', monospace;
+				font-size: 11px;
+				line-height: 1.4;
+				resize: vertical;
+				min-height: 60px;
+			}
+
+			.feedback-input:focus {
+				outline: none;
+				border-color: #0066ff;
+				box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1);
+			}
+
+			.feedback-buttons {
+				display: flex;
+				gap: 8px;
+				margin-top: 10px;
+			}
+
+			.btn-submit {
+				flex: 1;
+				padding: 10px;
+				background: #0066ff;
+				color: #fff;
+				border: none;
+				border-radius: 6px;
+				font-weight: 500;
+				cursor: pointer;
+				font-size: 12px;
+			}
+
+			.btn-submit:hover {
+				background: #0052cc;
+			}
+
+			.btn-cancel {
+				flex: 1;
+				padding: 10px;
+				background: #f0f0f0;
+				color: #333;
+				border: none;
+				border-radius: 6px;
+				font-weight: 500;
+				cursor: pointer;
+				font-size: 12px;
+			}
+
+			.btn-cancel:hover {
+				background: #e0e0e0;
+			}
+
+			/* Bottom Panel */
+			.bottom-panel {
+				background: #fff;
+				border-top: 1px solid rgba(0, 0, 0, 0.06);
+				display: flex;
+				flex-direction: column;
+				transition: all 0.2s ease;
+			}
+
+			.bottom-panel.collapsed {
+				height: 32px;
+			}
+
+			.bottom-panel.expanded {
+				height: 180px;
+			}
+
+			.bottom-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 8px 16px;
+				height: 32px;
+				flex-shrink: 0;
+			}
+
+			.bottom-title {
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				color: #999;
+				letter-spacing: 0.4px;
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				cursor: pointer;
+				user-select: none;
+			}
+
+			.activity-log-count {
+				font-size: 10px;
+				color: #999;
+				font-weight: 500;
+			}
+
+			.toggle-arrow {
+				display: inline-flex;
+				align-items: center;
+				transition: transform 0.2s ease;
+			}
+
+			.toggle-arrow.open {
+				transform: rotate(90deg);
+			}
+
+			.activity-log {
+				flex: 1;
+				overflow-y: auto;
+				display: flex;
+				flex-direction: column;
+				gap: 3px;
+				font-size: 11px;
+				padding: 0 16px 8px 16px;
+			}
+
+			.log-entry {
+				display: flex;
+				gap: 8px;
+				align-items: flex-start;
+				padding: 4px 6px;
+				border-radius: 4px;
+				background: transparent;
+				transition: all 0.2s ease;
+			}
+
+			.log-entry:hover {
+				background: #f8f8f8;
+			}
+
+			.log-time {
+				color: #999;
+				min-width: 45px;
+				font-family: 'SF Mono', 'Monaco', monospace;
+				font-size: 10px;
+			}
+
+			.log-monogram {
+				width: 20px;
+				height: 20px;
+				border-radius: 4px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 8px;
+				font-weight: 700;
+				color: #fff;
+				flex-shrink: 0;
+			}
+
+			.log-message {
+				flex: 1;
+				color: #555;
+			}
+
+			.log-message strong {
+				color: #111;
+			}
+
+			.log-start {
+				color: #3b82f6;
+			}
+			.log-complete {
+				color: #22c55e;
+			}
+			.log-checkpoint {
+				color: #f59e0b;
+			}
+			.log-approval {
+				color: #10b981;
+			}
+			.log-rejection {
+				color: #ef4444;
+			}
+			.log-revision {
+				color: #f97316;
+			}
+			.log-system {
+				color: #7c3aed;
+			}
+			.log-success {
+				color: #06b6d4;
+			}
+
+			/* Scrollbars */
+			::-webkit-scrollbar {
+				width: 6px;
+				height: 6px;
+			}
+
+			::-webkit-scrollbar-track {
+				background: transparent;
+			}
+
+			::-webkit-scrollbar-thumb {
+				background: #ddd;
+				border-radius: 3px;
+			}
+
+			::-webkit-scrollbar-thumb:hover {
+				background: #bbb;
+			}
+
+			/* Responsive */
+			@media (max-width: 1200px) {
+				.header-center {
+					gap: 16px;
+				}
+				.metric-value {
+					font-size: 14px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div id="root"></div>
+
+		<script type="text/babel">
+			const { useState, useEffect, useRef, useCallback } = React;
+
+			// Agent configuration
+			const AGENT_CONFIGS = {
+				discovery: {
+					name: 'Discovery Agent',
+					monogram: 'D',
+					color: '#3b82f6',
+					role: 'Customer Research Lead',
+					description:
+						'Conducts customer interviews and synthesizes pain points',
+				},
+				competitive: {
+					name: 'Competitive Analyst',
+					monogram: 'C',
+					color: '#8b5cf6',
+					role: 'Market Intelligence',
+					description: 'Analyzes competitive landscape and opportunity gaps',
+				},
+				roadmap: {
+					name: 'Roadmap Agent',
+					monogram: 'R',
+					color: '#06b6d4',
+					role: 'Prioritization Expert',
+					description: 'RICE-scores features and builds quarterly roadmaps',
+				},
+				prd: {
+					name: 'PRD Writer',
+					monogram: 'P',
+					color: '#f59e0b',
+					role: 'Documentation Specialist',
+					description: 'Drafts PRDs with user stories and acceptance criteria',
+				},
+				validator: {
+					name: 'Validator Agent',
+					monogram: 'V',
+					color: '#10b981',
+					role: 'Quality Assurance',
+					description: 'Audits outputs for factual accuracy and consistency',
+				},
+				synthesis: {
+					name: 'Synthesis',
+					monogram: 'S',
+					color: '#0f766e',
+					role: 'Executive Summary',
+					description: 'Combines all outputs into a cohesive strategic brief',
+				},
+			};
+
+			const AGENT_ORDER = [
+				'discovery',
+				'competitive',
+				'roadmap',
+				'prd',
+				'validator',
+				'synthesis',
+			];
+
+			// Main App Component
+			function MissionControl() {
+				const [ws, setWs] = useState(null);
+				const [connected, setConnected] = useState(false);
+				const [selectedAgent, setSelectedAgent] = useState('discovery');
+				const [showGuide, setShowGuide] = useState(() => {
+					// Don't show guide if user has seen it before
+					try {
+						return !window.sessionStorage.getItem('guideSeen');
+					} catch (e) {
+						return true;
+					}
+				});
+				const [agentStates, setAgentStates] = useState(() => {
+					const initial = {};
+					AGENT_ORDER.forEach((id) => {
+						initial[id] = {
+							status: 'idle',
+							output: '',
+							thinking: [],
+							thinkingComplete: false,
+							detail: null,
+						};
+					});
+					return initial;
+				});
+				const [metrics, setMetrics] = useState({
+					duration: 0,
+					active_agents: 0,
+					gates_passed: 0,
+					gates_total: 3,
+					revisions: 0,
+					validator_score: 0,
+				});
+				const [activityLog, setActivityLog] = useState([]);
+				const [pipelineRunning, setPipelineRunning] = useState(false);
+				const [pipelineComplete, setPipelineComplete] = useState(false);
+				const [hitlGate, setHitlGate] = useState(null);
+				const [agentDecisions, setAgentDecisions] = useState({});
+				const [rejectionFeedback, setRejectionFeedback] = useState('');
+				const [showFeedbackInput, setShowFeedbackInput] = useState(false);
+				const [activityLogOpen, setActivityLogOpen] = useState(false);
+				const [context, setContext] = useState({
+					product_description: '',
+					interview_data: '',
+					competitive_notes: '',
+					additional_context: '',
+				});
+				const [pipelinePlan, setPipelinePlan] = useState(null);
+				const [pipelineSummary, setPipelineSummary] = useState(null);
+				const metricsTimerRef = useRef(null);
+				const startTimeRef = useRef(null);
+
+				// Auto-save session state when agent outputs change
+				useEffect(() => {
+					const hasOutput = Object.values(agentStates).some((s) => s.output);
+					if (!hasOutput) return;
+
+					const sessionData = {
+						agentStates: {},
+						metrics,
+						pipelineComplete,
+						context,
+						pipelineSummary,
+						selectedAgent,
+						hitlGate,
+						agentDecisions,
+						pipelineRunning,
+						timestamp: Date.now(),
+					};
+					// Only save output + status + detail (not thinking arrays to keep it small)
+					AGENT_ORDER.forEach((id) => {
+						sessionData.agentStates[id] = {
+							status: agentStates[id].status,
+							output: agentStates[id].output,
+							detail: agentStates[id].detail,
+						};
+					});
+
+					fetch('/session', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify(sessionData),
+					}).catch(() => {});
+				}, [agentStates, pipelineComplete]);
+
+				// Restore session on mount
+				useEffect(() => {
+					fetch('/session')
+						.then((r) => {
+							if (r.ok) return r.json();
+							throw new Error('no session');
+						})
+						.then((data) => {
+							if (data.agentStates) {
+								setAgentStates((prev) => {
+									const restored = {};
+									AGENT_ORDER.forEach((id) => {
+										restored[id] = {
+											...prev[id],
+											status: data.agentStates[id]?.status || 'idle',
+											output: data.agentStates[id]?.output || '',
+											detail: data.agentStates[id]?.detail || null,
+											thinking: [],
+											thinkingComplete: true,
+										};
+									});
+									return restored;
+								});
+							}
+							if (data.metrics) setMetrics(data.metrics);
+							if (data.pipelineComplete) setPipelineComplete(true);
+							if (data.context) setContext(data.context);
+							if (data.pipelineSummary)
+								setPipelineSummary(data.pipelineSummary);
+							if (data.selectedAgent) setSelectedAgent(data.selectedAgent);
+							if (data.hitlGate) setHitlGate(data.hitlGate);
+							if (data.agentDecisions) setAgentDecisions(data.agentDecisions);
+							if (data.pipelineRunning) setPipelineRunning(true);
+						})
+						.catch(() => {});
+				}, []);
+
+				// Listen for agent selection from HITL chip clicks
+				useEffect(() => {
+					const handler = (e) => setSelectedAgent(e.detail);
+					window.addEventListener('selectAgent', handler);
+					return () => window.removeEventListener('selectAgent', handler);
+				}, []);
+
+				// Initialize WebSocket
+				useEffect(() => {
+					const connectWebSocket = () => {
+						const protocol =
+							window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+						const wsUrl = `${protocol}//${window.location.host}/ws`;
+
+						const newWs = new WebSocket(wsUrl);
+
+						newWs.onopen = () => {
+							console.log('WebSocket connected');
+							setConnected(true);
+						};
+
+						newWs.onmessage = (event) => {
+							const message = JSON.parse(event.data);
+							handleMessage(message);
+						};
+
+						newWs.onerror = (error) => {
+							console.error('WebSocket error:', error);
+							setConnected(false);
+						};
+
+						newWs.onclose = () => {
+							console.log('WebSocket disconnected');
+							setConnected(false);
+							setTimeout(connectWebSocket, 3000);
+						};
+
+						setWs(newWs);
+					};
+
+					connectWebSocket();
+
+					return () => {
+						if (ws) ws.close();
+					};
+				}, []);
+
+				// Handle metrics timer
+				useEffect(() => {
+					if (pipelineRunning && startTimeRef.current) {
+						metricsTimerRef.current = setInterval(() => {
+							const elapsed = Math.floor(
+								(Date.now() - startTimeRef.current) / 1000,
+							);
+							setMetrics((m) => ({ ...m, duration: elapsed }));
+						}, 100);
+
+						return () => clearInterval(metricsTimerRef.current);
+					}
+				}, [pipelineRunning]);
+
+				const handleMessage = (message) => {
+					switch (message.type) {
+						case 'agent_status':
+							setAgentStates((prev) => ({
+								...prev,
+								[message.agent_id]: {
+									...prev[message.agent_id],
+									status: message.status,
+								},
+							}));
+							break;
+
+						case 'agent_output':
+							setAgentStates((prev) => ({
+								...prev,
+								[message.agent_id]: {
+									...prev[message.agent_id],
+									output: message.append
+										? prev[message.agent_id].output + message.text
+										: message.text,
+								},
+							}));
+							break;
+
+						case 'agent_thinking':
+							setAgentStates((prev) => ({
+								...prev,
+								[message.agent_id]: {
+									...prev[message.agent_id],
+									thinking: [
+										...(prev[message.agent_id].thinking || []),
+										{
+											step: message.step,
+											step_index: message.step_index,
+											total_steps: message.total_steps,
+										},
+									],
+									thinkingComplete: false,
+								},
+							}));
+							break;
+
+						case 'agent_detail':
+							setAgentStates((prev) => ({
+								...prev,
+								[message.agent_id]: {
+									...prev[message.agent_id],
+									detail: {
+										tools_active: message.tools_active || [],
+										context_sources: message.context_sources || [],
+										model: message.model || 'claude-opus-4-6',
+									},
+								},
+							}));
+							break;
+
+						case 'thinking_complete':
+							setAgentStates((prev) => ({
+								...prev,
+								[message.agent_id]: {
+									...prev[message.agent_id],
+									thinkingComplete: true,
+								},
+							}));
+							break;
+
+						case 'log':
+							const timestamp = new Date().toLocaleTimeString();
+							setActivityLog((prev) => [
+								...prev,
+								{
+									id: Date.now(),
+									timestamp,
+									agent_id: message.agent_id,
+									agent_name: message.agent_name,
+									message: message.message,
+									event_type: message.event_type,
+								},
+							]);
+							break;
+
+						case 'metrics':
+							setMetrics({
+								duration: message.duration,
+								active_agents: message.active_agents,
+								gates_passed: message.gates_passed,
+								gates_total: message.gates_total,
+								revisions: message.revisions,
+								validator_score: message.validator_score,
+							});
+							break;
+
+						case 'hitl_gate':
+							setHitlGate({
+								gate_id: message.gate_id,
+								stage_name: message.stage_name,
+								description: message.description,
+								agent_ids: message.agent_ids || [],
+							});
+							setAgentDecisions({});
+							setShowFeedbackInput(false);
+							setRejectionFeedback('');
+							break;
+
+						case 'orchestrator_plan':
+							setPipelinePlan(message.plan);
+							break;
+
+						case 'pipeline_summary':
+							setPipelineSummary(message);
+							break;
+
+						case 'pipeline_complete':
+							setPipelineRunning(false);
+							setPipelineComplete(true);
+							if (message.success) {
+								addLogEntry(
+									'system',
+									'System',
+									'Pipeline complete — all phases succeeded',
+									'success',
+								);
+							} else {
+								addLogEntry(
+									'system',
+									'System',
+									`Pipeline failed: ${message.error}`,
+									'rejection',
+								);
+							}
+							break;
+					}
+				};
+
+				const addLogEntry = (agent_id, name, message, type) => {
+					const timestamp = new Date().toLocaleTimeString();
+					setActivityLog((prev) => [
+						...prev,
+						{
+							id: Date.now(),
+							timestamp,
+							agent_id,
+							agent_name: name,
+							message,
+							event_type: type,
+						},
+					]);
+				};
+
+				const startPipeline = () => {
+					if (ws && ws.readyState === WebSocket.OPEN) {
+						setAgentStates((prev) => {
+							const reset = {};
+							AGENT_ORDER.forEach((id) => {
+								reset[id] = {
+									status: 'idle',
+									output: '',
+									thinking: [],
+									thinkingComplete: false,
+									detail: null,
+								};
+							});
+							return reset;
+						});
+						setActivityLog([]);
+						setMetrics({
+							duration: 0,
+							active_agents: 0,
+							gates_passed: 0,
+							gates_total: 3,
+							revisions: 0,
+							validator_score: 0,
+						});
+						setHitlGate(null);
+						setPipelineComplete(false);
+						setPipelinePlan(null);
+						setPipelineSummary(null);
+
+						// Clear old session before starting new run
+						fetch('/session', { method: 'DELETE' }).catch(() => {});
+						setPipelineRunning(true);
+						startTimeRef.current = Date.now();
+						ws.send(
+							JSON.stringify({ type: 'start_pipeline', context: context }),
+						);
+					}
+				};
+
+				const resetPipeline = () => {
+					setAgentStates((prev) => {
+						const reset = {};
+						AGENT_ORDER.forEach((id) => {
+							reset[id] = {
+								status: 'idle',
+								output: '',
+								thinking: [],
+								thinkingComplete: false,
+								detail: null,
+							};
+						});
+						return reset;
+					});
+					setActivityLog([]);
+					setMetrics({
+						duration: 0,
+						active_agents: 0,
+						gates_passed: 0,
+						gates_total: 3,
+						revisions: 0,
+						validator_score: 0,
+					});
+					setHitlGate(null);
+					setAgentDecisions({});
+					setShowFeedbackInput(false);
+					setRejectionFeedback('');
+					setPipelineComplete(false);
+					setPipelineRunning(false);
+					setPipelinePlan(null);
+					setPipelineSummary(null);
+					// Clear saved session
+					fetch('/session', { method: 'DELETE' }).catch(() => {});
+					if (ws && ws.readyState === WebSocket.OPEN) {
+						ws.send(JSON.stringify({ type: 'reset_pipeline' }));
+					}
+				};
+
+				// Send a decision directly via WebSocket (no intermediate state).
+				// Used for single-agent checkpoints to avoid React stale-closure bugs.
+				const sendDecisionDirectly = (decisions) => {
+					if (ws && ws.readyState === WebSocket.OPEN && hitlGate) {
+						ws.send(
+							JSON.stringify({
+								type: 'hitl_response',
+								gate_id: hitlGate.gate_id,
+								decisions,
+							}),
+						);
+						setHitlGate(null);
+						setAgentDecisions({});
+						setShowFeedbackInput(false);
+						setRejectionFeedback('');
+					}
+				};
+
+				const handleHitlApprove = (agentId) => {
+					const isMultiAgent =
+						hitlGate && hitlGate.agent_ids && hitlGate.agent_ids.length > 1;
+					if (isMultiAgent) {
+						// Multi-agent: update state so user can see the toggle, submit happens via "Continue" button
+						setAgentDecisions((prev) => ({
+							...prev,
+							[agentId]: { approved: true },
+						}));
+					} else {
+						// Single-agent: send immediately, no stale-state risk
+						const id = agentId || hitlGate?.agent_ids?.[0];
+						if (id)
+							sendDecisionDirectly({ [id]: { approved: true, feedback: '' } });
+					}
+				};
+
+				const handleHitlReject = (agentId) => {
+					const isMultiAgent =
+						hitlGate && hitlGate.agent_ids && hitlGate.agent_ids.length > 1;
+					if (isMultiAgent) {
+						// Multi-agent: update state to show feedback input for this agent
+						setAgentDecisions((prev) => ({
+							...prev,
+							[agentId]: { approved: false, feedback: '' },
+						}));
+					} else {
+						// Single-agent: show feedback input first, then send on submit
+						if (showFeedbackInput) {
+							const id = agentId || hitlGate?.agent_ids?.[0];
+							if (id)
+								sendDecisionDirectly({
+									[id]: { approved: false, feedback: rejectionFeedback },
+								});
+						} else {
+							setShowFeedbackInput(true);
+						}
+					}
+				};
+
+				const submitAgentDecisions = () => {
+					if (ws && ws.readyState === WebSocket.OPEN && hitlGate) {
+						const decisions = {};
+						hitlGate.agent_ids.forEach((agentId) => {
+							const decision = agentDecisions[agentId];
+							decisions[agentId] = {
+								approved: decision?.approved || false,
+								feedback: decision?.feedback || '',
+							};
+						});
+						ws.send(
+							JSON.stringify({
+								type: 'hitl_response',
+								gate_id: hitlGate.gate_id,
+								decisions: decisions,
+							}),
+						);
+						setHitlGate(null);
+						setAgentDecisions({});
+					}
+				};
+
+				const updateAgentFeedback = (agentId, feedback) => {
+					setAgentDecisions((prev) => ({
+						...prev,
+						[agentId]: {
+							...prev[agentId],
+							feedback: feedback,
+						},
+					}));
+				};
+
+				return (
+					<div className='container'>
+						<Header
+							connected={connected}
+							metrics={metrics}
+							onStartPipeline={startPipeline}
+							onResetPipeline={resetPipeline}
+							pipelineRunning={pipelineRunning}
+							pipelineComplete={pipelineComplete}
+							agentStates={agentStates}
+						/>
+
+						<div className='main-content'>
+							<LeftPanel
+								selectedAgent={selectedAgent}
+								onSelectAgent={setSelectedAgent}
+								agentStates={agentStates}
+							/>
+
+							<RightPanel
+								selectedAgent={selectedAgent}
+								agentState={agentStates[selectedAgent]}
+								allAgentStates={agentStates}
+								hitlGate={hitlGate}
+								onApprove={handleHitlApprove}
+								onReject={handleHitlReject}
+								onSubmitDecisions={submitAgentDecisions}
+								rejectionFeedback={rejectionFeedback}
+								onFeedbackChange={setRejectionFeedback}
+								showFeedbackInput={showFeedbackInput}
+								pipelineRunning={pipelineRunning}
+								pipelineComplete={pipelineComplete}
+								context={context}
+								onContextChange={setContext}
+								pipelinePlan={pipelinePlan}
+								pipelineSummary={pipelineSummary}
+								agentDecisions={agentDecisions}
+								onUpdateAgentFeedback={updateAgentFeedback}
+							/>
+						</div>
+
+						<ActivityLog
+							entries={activityLog}
+							open={activityLogOpen}
+							onToggle={setActivityLogOpen}
+						/>
+
+						{showGuide && (
+							<div
+								className='guide-overlay'
+								onClick={(e) => {
+									if (e.target === e.currentTarget) setShowGuide(false);
+								}}
+							>
+								<div className='guide-modal'>
+									<div className='guide-title'>Welcome to Mission Control</div>
+									<div className='guide-subtitle'>
+										AI-powered multi-agent system for product management
+										workflows
+									</div>
+
+									<div className='guide-steps'>
+										<div className='guide-step'>
+											<div className='guide-step-num'>1</div>
+											<div className='guide-step-content'>
+												<div className='guide-step-title'>
+													Add your research context
+												</div>
+												<div className='guide-step-desc'>
+													Paste interview transcripts, product descriptions, and
+													competitive notes into the input fields. You can also
+													upload .txt, .md, or .csv files.
+												</div>
+											</div>
+										</div>
+										<div className='guide-step'>
+											<div className='guide-step-num'>2</div>
+											<div className='guide-step-content'>
+												<div className='guide-step-title'>
+													Start the pipeline
+												</div>
+												<div className='guide-step-desc'>
+													Click Start to launch 6 specialized AI agents.
+													Discovery and Competitive agents run in parallel,
+													followed by Roadmap, PRD, Validator, and Synthesis.
+													If you refresh accidentally mid-run, use Reset Session
+													in the top-right header to clear stale state.
+												</div>
+											</div>
+										</div>
+										<div className='guide-step'>
+											<div className='guide-step-num'>3</div>
+											<div className='guide-step-content'>
+												<div className='guide-step-title'>
+													Review at checkpoints
+												</div>
+												<div className='guide-step-desc'>
+													At each checkpoint, review agent outputs and approve
+													or reject with feedback. Rejected agents revise their
+													work based on your input.
+												</div>
+											</div>
+										</div>
+										<div className='guide-step'>
+											<div className='guide-step-num'>4</div>
+											<div className='guide-step-content'>
+												<div className='guide-step-title'>
+													Export your deliverables
+												</div>
+												<div className='guide-step-desc'>
+													Use Copy or Expand to review outputs at any stage.
+													Export All downloads a complete report. On the
+													Synthesis view, Generate Implementation Brief creates
+													a spec ready for Claude Code or engineering handoff.
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div className='guide-modes'>
+										<div className='guide-modes-title'>Running Modes</div>
+										<div className='guide-mode-row'>
+											<span className='guide-mode-code'>python server.py</span>{' '}
+											Demo mode — no API key needed
+										</div>
+										<div className='guide-mode-row'>
+											<span className='guide-mode-code'>
+												python server.py --local
+											</span>{' '}
+											Local AI via Ollama (free)
+										</div>
+										<div className='guide-mode-row'>
+											<span className='guide-mode-code'>
+												python server.py --live
+											</span>{' '}
+											Anthropic API (highest quality)
+										</div>
+									</div>
+
+									<button
+										className='guide-close-btn'
+										onClick={() => {
+											setShowGuide(false);
+											try {
+												window.sessionStorage.setItem('guideSeen', '1');
+											} catch (e) {}
+										}}
+									>
+										Get Started
+									</button>
+								</div>
+							</div>
+						)}
+					</div>
+				);
+			}
+
+			// Header Component
+			function Header({
+				connected,
+				metrics,
+				onStartPipeline,
+				onResetPipeline,
+				pipelineRunning,
+				pipelineComplete,
+				agentStates,
+			}) {
+				const hasAnyOutput = Object.values(agentStates).some((s) => s.output);
+				const showContextPanel =
+					!pipelineRunning && !pipelineComplete && !hasAnyOutput;
+
+				return (
+					<div className='header'>
+						<div className='header-left'>
+							<div className='header-title'>
+								PM Agent Swarm — Mission Control
+							</div>
+							<div className='header-subtitle'>
+								Adam Ketefian | MKTG 454 Ad Hoc | UW Foster School of Business
+							</div>
+						</div>
+
+						<div className='header-center'>
+							<div className='metric-pill'>
+								<div className='metric-label'>Duration</div>
+								<div className='metric-value'>{metrics.duration}s</div>
+							</div>
+							<div className='metric-pill'>
+								<div className='metric-label'>Active</div>
+								<div className='metric-value'>
+									{metrics.active_agents}/{6}
+								</div>
+							</div>
+							<div className='metric-pill'>
+								<div className='metric-label'>Checkpoints</div>
+								<div className='metric-value'>
+									{metrics.gates_passed}/{metrics.gates_total}
+								</div>
+							</div>
+							<div className='metric-pill'>
+								<div className='metric-label'>Revisions</div>
+								<div className='metric-value'>{metrics.revisions}</div>
+							</div>
+							<div className='metric-pill'>
+								<div className='metric-label'>Score</div>
+								<div className='metric-value'>
+									{metrics.validator_score.toFixed(1)}/10
+								</div>
+							</div>
+						</div>
+
+						<div className='header-right'>
+							<div className='connection-status'>
+								<div
+									className={`connection-dot ${connected ? 'connected' : ''}`}
+								></div>
+								<span>{connected ? 'Connected' : 'Disconnected'}</span>
+							</div>
+							<button className='btn btn-secondary' onClick={onResetPipeline}>
+								<span>⟲</span>
+								<span>Reset Session</span>
+							</button>
+							{!pipelineComplete ? (
+								<button
+									className='btn btn-primary'
+									onClick={onStartPipeline}
+									disabled={pipelineRunning || !connected}
+									title={
+										showContextPanel ? 'Fill in context data to start' : ''
+									}
+								>
+									<span>▶</span>
+									<span>Start</span>
+								</button>
+							) : (
+								<button
+									className='btn btn-secondary'
+									onClick={onStartPipeline}
+									disabled={pipelineRunning || !connected}
+								>
+									<span>↻</span>
+									<span>Run Again</span>
+								</button>
+							)}
+						</div>
+					</div>
+				);
+			}
+
+			// Left Panel - Agent Pipeline
+			function LeftPanel({ selectedAgent, onSelectAgent, agentStates }) {
+				return (
+					<div className='left-panel'>
+						<div className='left-panel-title'>Agent Pipeline</div>
+
+						<AgentCard
+							agent_id='discovery'
+							selected={selectedAgent === 'discovery'}
+							onSelect={onSelectAgent}
+							agentState={agentStates.discovery}
+						/>
+						<AgentCard
+							agent_id='competitive'
+							selected={selectedAgent === 'competitive'}
+							onSelect={onSelectAgent}
+							agentState={agentStates.competitive}
+						/>
+
+						<div className='checkpoint-marker'>
+							<span className='checkpoint-dot'></span>
+							<span>Checkpoint 1</span>
+						</div>
+
+						<AgentCard
+							agent_id='roadmap'
+							selected={selectedAgent === 'roadmap'}
+							onSelect={onSelectAgent}
+							agentState={agentStates.roadmap}
+						/>
+
+						<div className='checkpoint-marker'>
+							<span className='checkpoint-dot'></span>
+							<span>Checkpoint 2</span>
+						</div>
+
+						<AgentCard
+							agent_id='prd'
+							selected={selectedAgent === 'prd'}
+							onSelect={onSelectAgent}
+							agentState={agentStates.prd}
+						/>
+
+						<div className='checkpoint-marker'>
+							<span className='checkpoint-dot'></span>
+							<span>Checkpoint 3</span>
+						</div>
+
+						<AgentCard
+							agent_id='validator'
+							selected={selectedAgent === 'validator'}
+							onSelect={onSelectAgent}
+							agentState={agentStates.validator}
+						/>
+
+						<div className='checkpoint-marker'>
+							<span className='checkpoint-dot'></span>
+							<span>Final Synthesis</span>
+						</div>
+
+						<AgentCard
+							agent_id='synthesis'
+							selected={selectedAgent === 'synthesis'}
+							onSelect={onSelectAgent}
+							agentState={agentStates.synthesis}
+						/>
+					</div>
+				);
+			}
+
+			function AgentCard({ agent_id, selected, onSelect, agentState }) {
+				const config = AGENT_CONFIGS[agent_id];
+				const statusClass = agentState.status.replace('_', '-');
+
+				return (
+					<div
+						className={`agent-card ${selected ? 'selected' : ''}`}
+						onClick={() => onSelect(agent_id)}
+					>
+						<div
+							className='agent-monogram'
+							style={{ backgroundColor: config.color }}
+						>
+							{config.monogram}
+						</div>
+						<div className='agent-info'>
+							<div className='agent-name'>{config.name}</div>
+							<div className='agent-status-line'>
+								<div className={`status-dot ${statusClass}`}></div>
+								<span>{agentState.status.replace('_', ' ')}</span>
+							</div>
+						</div>
+					</div>
+				);
+			}
+
+			// Right Panel - Agent Detail
+			function RightPanel({
+				selectedAgent,
+				agentState,
+				allAgentStates,
+				hitlGate,
+				onApprove,
+				onReject,
+				onSubmitDecisions,
+				rejectionFeedback,
+				onFeedbackChange,
+				showFeedbackInput,
+				pipelineRunning,
+				pipelineComplete,
+				context,
+				onContextChange,
+				pipelinePlan,
+				pipelineSummary,
+				agentDecisions,
+				onUpdateAgentFeedback,
+			}) {
+				const config = AGENT_CONFIGS[selectedAgent];
+				const outputRef = useRef(null);
+				const [thinkingOpen, setThinkingOpen] = useState(false);
+				const [copyFeedback, setCopyFeedback] = useState('');
+				const [uploadedFiles, setUploadedFiles] = useState([]);
+				const [uploading, setUploading] = useState(false);
+				const [fullscreenAgent, setFullscreenAgent] = useState(null);
+				const fileInputRef = useRef(null);
+
+				const handleFileUpload = async (files) => {
+					for (const file of files) {
+						setUploading(true);
+						try {
+							const formData = new FormData();
+							formData.append('file', file);
+							const resp = await fetch('/upload', {
+								method: 'POST',
+								body: formData,
+							});
+							const data = await resp.json();
+							if (resp.ok) {
+								setUploadedFiles((prev) => [
+									...prev,
+									{ name: data.filename, size: data.size, text: data.text },
+								]);
+								// Auto-append to interview_data field
+								onContextChange((prev) => ({
+									...prev,
+									interview_data:
+										(prev.interview_data ? prev.interview_data + '\n\n' : '') +
+										`--- ${data.filename} ---\n${data.text}`,
+								}));
+							} else {
+								console.error('Upload error:', data.error);
+							}
+						} catch (err) {
+							console.error('Upload failed:', err);
+						}
+						setUploading(false);
+					}
+				};
+
+				const removeFile = (idx) => {
+					setUploadedFiles((prev) => prev.filter((_, i) => i !== idx));
+				};
+
+				useEffect(() => {
+					if (outputRef.current) {
+						outputRef.current.scrollTop = outputRef.current.scrollHeight;
+					}
+				}, [agentState.output]);
+
+				const hasAnyOutput = Object.values(allAgentStates).some(
+					(s) => s.output,
+				);
+				const shouldShowContextPanel =
+					!pipelineRunning && !pipelineComplete && !hasAnyOutput;
+
+				const copyToClipboard = () => {
+					navigator.clipboard
+						.writeText(agentState.output)
+						.then(() => {
+							setCopyFeedback('Copied!');
+							setTimeout(() => setCopyFeedback(''), 2000);
+						})
+						.catch((err) => console.error('Failed to copy:', err));
+				};
+
+				const downloadAllOutputs = () => {
+					let markdown = '# PM Agent Swarm — Pipeline Export\n';
+					markdown += `Generated: ${new Date().toISOString()}\n\n`;
+
+					AGENT_ORDER.forEach((agentId, idx) => {
+						const agentConfig = AGENT_CONFIGS[agentId];
+						markdown += `---\n\n# ${agentConfig.name}\n\n`;
+						markdown += allAgentStates[agentId].output || '(No output yet)\n\n';
+					});
+
+					const blob = new Blob([markdown], { type: 'text/markdown' });
+					const url = URL.createObjectURL(blob);
+					const a = document.createElement('a');
+					a.href = url;
+					a.download = `pm-agent-swarm-export-${Date.now()}.md`;
+					document.body.appendChild(a);
+					a.click();
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				};
+
+				const generateImplementationBrief = () => {
+					const prdOutput = allAgentStates['prd']?.output || '';
+					const roadmapOutput = allAgentStates['roadmap']?.output || '';
+					const discoveryOutput = allAgentStates['discovery']?.output || '';
+
+					const brief = `# Implementation Brief
+			## Generated from PM Agent Swarm Pipeline
+			Date: ${new Date().toISOString().split('T')[0]}
+
+			---
+
+			## Instructions for Engineering Team
+
+			Use this brief to build an MVP of the top-priority feature identified by the PM agent pipeline. This document is formatted as a prompt suitable for AI-powered development tools (Claude Code, Cursor, etc.) or as a handoff document for engineering.
+
+			---
+
+			## Product Context
+
+			${allAgentStates['synthesis']?.output ? allAgentStates['synthesis'].output.split('## Key Findings')[0] : 'See executive summary.'}
+
+			---
+
+			## Feature Specification
+
+			${prdOutput || 'No PRD output available.'}
+
+			---
+
+			## Priority Context (from Roadmap)
+
+			${roadmapOutput ? roadmapOutput.split('## Quarterly Groupings')[0] : 'See roadmap output.'}
+
+			---
+
+			## Customer Evidence (from Discovery)
+
+			${discoveryOutput ? discoveryOutput.split('## Automation Opportunities')[0] : 'See discovery output.'}
+
+			---
+
+			## Implementation Prompt
+
+			Build an MVP for the feature described in the Feature Specification above. Key requirements:
+
+			1. Implement all user stories (US-1, US-2, US-3) with their acceptance criteria
+			2. Use a modern web stack (React frontend, Python/Node backend)
+			3. Prioritize the core integration flow first, then add polish
+			4. Include basic error handling and loading states
+			5. Make it demo-ready — this will be shown to stakeholders
+
+			Focus on working software over perfection. Ship the core value proposition first.
+			`;
+
+					const blob = new Blob([brief], { type: 'text/markdown' });
+					const url = URL.createObjectURL(blob);
+					const a = document.createElement('a');
+					a.href = url;
+					a.download = `implementation-brief-${Date.now()}.md`;
+					document.body.appendChild(a);
+					a.click();
+					document.body.removeChild(a);
+					URL.revokeObjectURL(url);
+				};
+
+				const allDecisionsComplete =
+					hitlGate &&
+					hitlGate.agent_ids.length > 0 &&
+					hitlGate.agent_ids.every(
+						(id) =>
+							agentDecisions[id] && agentDecisions[id].approved !== undefined,
+					);
+
+				if (shouldShowContextPanel) {
+					return (
+						<div className='right-panel'>
+							<div className='context-panel-header'>
+								<div className='context-panel-title'>Pipeline Context</div>
+								<div className='context-panel-subtitle'>
+									Provide your research data to ground the AI agents.
+								</div>
+							</div>
+
+							<div className='context-form'>
+								<div className='context-form-section'>
+									<label className='context-form-label'>
+										Product Description
+									</label>
+									<textarea
+										className='context-textarea product-desc'
+										placeholder='Describe your product, target market, and what problem it solves...'
+										value={context.product_description}
+										onChange={(e) =>
+											onContextChange({
+												...context,
+												product_description: e.target.value,
+											})
+										}
+									/>
+								</div>
+
+								<div className='context-form-section'>
+									<label className='context-form-label'>Interview Data</label>
+									<textarea
+										className='context-textarea interview-data'
+										placeholder='Paste customer interview transcripts, user feedback, or research notes...'
+										value={context.interview_data}
+										onChange={(e) =>
+											onContextChange({
+												...context,
+												interview_data: e.target.value,
+											})
+										}
+									/>
+								</div>
+
+								<div className='context-form-section'>
+									<label className='context-form-label'>
+										Competitive Notes
+									</label>
+									<textarea
+										className='context-textarea competitive-notes'
+										placeholder='List competitors, their features, pricing, and any market intelligence...'
+										value={context.competitive_notes}
+										onChange={(e) =>
+											onContextChange({
+												...context,
+												competitive_notes: e.target.value,
+											})
+										}
+									/>
+								</div>
+
+								<div className='context-form-section'>
+									<label className='context-form-label'>
+										Additional Context (Optional)
+									</label>
+									<textarea
+										className='context-textarea additional-context'
+										placeholder='Any additional context: product vision, constraints, existing roadmap...'
+										value={context.additional_context}
+										onChange={(e) =>
+											onContextChange({
+												...context,
+												additional_context: e.target.value,
+											})
+										}
+									/>
+								</div>
+
+								<div className='file-upload-section'>
+									<label className='context-form-label'>Upload Files</label>
+									<input
+										ref={fileInputRef}
+										type='file'
+										multiple
+										accept='.txt,.md,.csv,.tsv,.json'
+										style={{ display: 'none' }}
+										onChange={(e) =>
+											handleFileUpload(Array.from(e.target.files))
+										}
+									/>
+									<div
+										className='file-upload-area'
+										onClick={() =>
+											fileInputRef.current && fileInputRef.current.click()
+										}
+										onDragOver={(e) => {
+											e.preventDefault();
+											e.currentTarget.classList.add('dragging');
+										}}
+										onDragLeave={(e) => {
+											e.currentTarget.classList.remove('dragging');
+										}}
+										onDrop={(e) => {
+											e.preventDefault();
+											e.currentTarget.classList.remove('dragging');
+											handleFileUpload(Array.from(e.dataTransfer.files));
+										}}
+									>
+										<div className='file-upload-text'>
+											{uploading ? 'Uploading...' : 'Click or drag files here'}
+										</div>
+										<div className='file-upload-hint'>
+											Supports .txt, .md, .csv, .tsv, .json
+										</div>
+									</div>
+									{uploadedFiles.length > 0 && (
+										<div className='uploaded-files'>
+											{uploadedFiles.map((f, idx) => (
+												<div key={idx} className='uploaded-file-item'>
+													<div>
+														<span className='uploaded-file-name'>{f.name}</span>
+														<span className='uploaded-file-size'>
+															({(f.size / 1024).toFixed(1)} KB)
+														</span>
+													</div>
+													<button
+														className='uploaded-file-remove'
+														onClick={() => removeFile(idx)}
+													>
+														x
+													</button>
+												</div>
+											))}
+										</div>
+									)}
+								</div>
+
+								<div className='context-panel-hint'>
+									Tip: Add your research data above for AI-powered analysis, or
+									start empty for a demo run.
+								</div>
+							</div>
+						</div>
+					);
+				}
+
+				return (
+					<div className='right-panel'>
+						<div className='right-panel-header'>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'flex-start',
+									gap: '12px',
+								}}
+							>
+								<div style={{ flex: 1 }}>
+									<div className='agent-header'>
+										<div
+											className='agent-monogram'
+											style={{ backgroundColor: config.color }}
+										>
+											{config.monogram}
+										</div>
+										<span>{config.name}</span>
+									</div>
+									<div className='agent-role'>{config.role}</div>
+									{agentState.detail && (
+										<div className='metadata-row'>
+											<div className='model-badge'>
+												{agentState.detail.model}
+											</div>
+											{agentState.detail.tools_active &&
+												agentState.detail.tools_active.map((tool) => (
+													<div key={tool} className='tool-pill'>
+														{tool}
+													</div>
+												))}
+											{agentState.detail.context_sources &&
+												agentState.detail.context_sources.map((source) => (
+													<div key={source} className='context-pill'>
+														{source}
+													</div>
+												))}
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+
+						<div className='output-section'>
+							{pipelinePlan &&
+								pipelineRunning &&
+								!Object.values(allAgentStates).some(
+									(s) => s.status !== 'idle',
+								) && (
+									<div className='plan-section'>
+										<div className='plan-title'>Pipeline Strategy</div>
+										{pipelinePlan.map((step, idx) => (
+											<div key={idx} className='plan-step'>
+												<div
+													className='agent-monogram'
+													style={{
+														backgroundColor: AGENT_CONFIGS[step.agent]?.color,
+													}}
+												>
+													{AGENT_CONFIGS[step.agent]?.monogram}
+												</div>
+												<div>
+													<div className='plan-agent-name'>
+														{AGENT_CONFIGS[step.agent]?.name}
+													</div>
+													<div className='plan-focus'>{step.focus}</div>
+												</div>
+											</div>
+										))}
+									</div>
+								)}
+
+							{pipelineSummary && pipelineComplete && (
+								<div className='summary-panel'>
+									<div className='summary-banner'>
+										<div className='summary-banner-left'>
+											<div className='summary-title'>Pipeline Complete</div>
+											<div className='summary-metrics'>
+												<div className='summary-metric'>
+													<span className='summary-metric-value'>
+														{pipelineSummary.total_duration}s
+													</span>
+													<span className='summary-metric-label'>
+														{' '}
+														duration
+													</span>
+												</div>
+												<div className='summary-metric'>
+													<span className='summary-metric-value'>
+														{pipelineSummary.agents_completed}
+													</span>
+													<span className='summary-metric-label'> agents</span>
+												</div>
+												<div className='summary-metric'>
+													<span className='summary-metric-value'>
+														{pipelineSummary.checkpoints_passed}/3
+													</span>
+													<span className='summary-metric-label'> checks</span>
+												</div>
+												<div className='summary-metric'>
+													<span className='summary-metric-value'>
+														{pipelineSummary.validator_score}/10
+													</span>
+													<span className='summary-metric-label'> score</span>
+												</div>
+											</div>
+										</div>
+										<div className='summary-actions'>
+											<button
+												className='btn-small btn-export'
+												onClick={downloadAllOutputs}
+											>
+												Export
+											</button>
+										</div>
+									</div>
+								</div>
+							)}
+
+							{agentState.thinking && agentState.thinking.length > 0 && (
+								<div className='thinking-section'>
+									<div
+										className='thinking-header'
+										onClick={() => setThinkingOpen(!thinkingOpen)}
+									>
+										<span
+											className={`thinking-toggle ${thinkingOpen ? 'open' : ''}`}
+										>
+											▶
+										</span>
+										<span>&gt; Reasoning</span>
+										{!agentState.thinkingComplete && (
+											<span className='thinking-pulse'></span>
+										)}
+									</div>
+									{thinkingOpen && (
+										<div className='thinking-content'>
+											{agentState.thinking.map((step, idx) => (
+												<div key={idx} className='thinking-step'>
+													<strong>
+														Step {step.step_index + 1}/{step.total_steps}:
+													</strong>{' '}
+													{step.step}
+												</div>
+											))}
+										</div>
+									)}
+								</div>
+							)}
+
+							<div className='output-container' ref={outputRef}>
+								{agentState.output ? (
+									<div
+										className='markdown-output'
+										dangerouslySetInnerHTML={{
+											__html: DOMPurify.sanitize(
+												marked.parse(agentState.output || ''),
+											),
+										}}
+									/>
+								) : (
+									<div className='output-empty'>
+										Waiting for agent to start...
+									</div>
+								)}
+							</div>
+						</div>
+
+						{agentState.output && (
+							<div className='output-toolbar'>
+								<button
+									className='btn-small btn-export'
+									onClick={copyToClipboard}
+								>
+									{copyFeedback || 'Copy'}
+								</button>
+								<button
+									className='btn-small btn-export'
+									onClick={() => setFullscreenAgent(selectedAgent)}
+								>
+									Expand
+								</button>
+								{pipelineComplete && (
+									<button
+										className='btn-small btn-export'
+										onClick={downloadAllOutputs}
+									>
+										Export All
+									</button>
+								)}
+								{pipelineComplete && selectedAgent === 'synthesis' && (
+									<button
+										className='btn-small'
+										style={{
+											background: '#111',
+											color: '#fff',
+											border: 'none',
+											borderRadius: '6px',
+											padding: '5px 12px',
+											fontSize: '11px',
+											fontWeight: 500,
+											cursor: 'pointer',
+										}}
+										onClick={generateImplementationBrief}
+									>
+										Generate Implementation Brief
+									</button>
+								)}
+							</div>
+						)}
+
+						{hitlGate &&
+							(() => {
+								const hasMultiAgent =
+									hitlGate.agent_ids && hitlGate.agent_ids.length > 1;
+								const hasSingleAgent =
+									hitlGate.agent_ids && hitlGate.agent_ids.length === 1;
+								const anyRejected = Object.values(agentDecisions).some(
+									(d) => d?.approved === false,
+								);
+
+								return (
+									<div
+										className={`hitl-panel ${anyRejected || hasMultiAgent ? 'expanded' : ''}`}
+									>
+										<div className='hitl-bar'>
+											<div className='hitl-bar-info'>
+												<span className='hitl-bar-label'>Checkpoint</span>
+												<span className='hitl-bar-stage'>
+													{hitlGate.stage_name}
+												</span>
+											</div>
+
+											{/* Single-agent: simple approve/reject — sends directly, no stale state */}
+											{!hasMultiAgent && (
+												<div className='hitl-bar-actions'>
+													{!showFeedbackInput ? (
+														<>
+															<button
+																className='btn-approve'
+																onClick={() =>
+																	onApprove(hitlGate.agent_ids?.[0])
+																}
+															>
+																Approve
+															</button>
+															<button
+																className='btn-reject'
+																onClick={() =>
+																	onReject(hitlGate.agent_ids?.[0])
+																}
+															>
+																Reject
+															</button>
+														</>
+													) : null}
+												</div>
+											)}
+
+											{/* Multi-agent: submit when all decided */}
+											{hasMultiAgent && allDecisionsComplete && (
+												<div className='hitl-bar-actions'>
+													<button
+														className='btn-submit-decisions'
+														onClick={onSubmitDecisions}
+													>
+														Continue
+													</button>
+												</div>
+											)}
+										</div>
+
+										{/* Multi-agent: show agent rows with individual approve/reject toggles */}
+										{hasMultiAgent && (
+											<div
+												className='hitl-expand-section'
+												style={{ marginTop: '8px' }}
+											>
+												{hitlGate.agent_ids.map((agentId) => {
+													const cfg = AGENT_CONFIGS[agentId];
+													const decision = agentDecisions[agentId];
+													const isApproved = decision?.approved === true;
+													const isRejected = decision?.approved === false;
+													const isUndecided = decision?.approved === undefined;
+
+													return (
+														<div key={agentId} style={{ marginBottom: '8px' }}>
+															<div
+																style={{
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '10px',
+																	padding: '8px 12px',
+																	borderRadius: '8px',
+																	background: isApproved
+																		? '#f0fdf4'
+																		: isRejected
+																			? '#fef2f2'
+																			: '#f8f8f8',
+																	border: `1px solid ${isApproved ? '#bbf7d0' : isRejected ? '#fecaca' : '#e5e5e5'}`,
+																	transition: 'all 0.15s ease',
+																}}
+															>
+																<div
+																	className='hitl-chip-mono'
+																	style={{ backgroundColor: cfg.color }}
+																>
+																	{cfg.monogram}
+																</div>
+																<span
+																	style={{
+																		flex: 1,
+																		fontSize: '12px',
+																		fontWeight: 500,
+																		color: '#111',
+																		cursor: 'pointer',
+																	}}
+																	onClick={() => {
+																		const selectEvent = new CustomEvent(
+																			'selectAgent',
+																			{ detail: agentId },
+																		);
+																		window.dispatchEvent(selectEvent);
+																	}}
+																>
+																	{cfg.name}
+																	<span
+																		style={{
+																			color: '#999',
+																			fontWeight: 400,
+																			marginLeft: '6px',
+																			fontSize: '11px',
+																		}}
+																	>
+																		— click to review
+																	</span>
+																</span>
+																<button
+																	onClick={() => onApprove(agentId)}
+																	style={{
+																		padding: '4px 10px',
+																		borderRadius: '5px',
+																		fontSize: '11px',
+																		fontWeight: 500,
+																		cursor: 'pointer',
+																		border: isApproved
+																			? '1px solid #22c55e'
+																			: '1px solid #d4d4d4',
+																		background: isApproved ? '#22c55e' : '#fff',
+																		color: isApproved ? '#fff' : '#555',
+																		transition: 'all 0.15s ease',
+																	}}
+																>
+																	{isApproved ? 'Approved' : 'Approve'}
+																</button>
+																<button
+																	onClick={() => onReject(agentId)}
+																	style={{
+																		padding: '4px 10px',
+																		borderRadius: '5px',
+																		fontSize: '11px',
+																		fontWeight: 500,
+																		cursor: 'pointer',
+																		border: isRejected
+																			? '1px solid #ef4444'
+																			: '1px solid #d4d4d4',
+																		background: isRejected ? '#ef4444' : '#fff',
+																		color: isRejected ? '#fff' : '#555',
+																		transition: 'all 0.15s ease',
+																	}}
+																>
+																	{isRejected ? 'Rejected' : 'Reject'}
+																</button>
+															</div>
+															{isRejected && (
+																<div
+																	style={{
+																		marginTop: '4px',
+																		paddingLeft: '36px',
+																	}}
+																>
+																	<input
+																		className='hitl-feedback-input'
+																		placeholder={`What should ${cfg.name} change?`}
+																		value={
+																			agentDecisions[agentId]?.feedback || ''
+																		}
+																		onChange={(e) =>
+																			onUpdateAgentFeedback(
+																				agentId,
+																				e.target.value,
+																			)
+																		}
+																		style={{ width: '100%' }}
+																	/>
+																</div>
+															)}
+														</div>
+													);
+												})}
+											</div>
+										)}
+
+										{/* Single-agent feedback row */}
+										{showFeedbackInput && !hasMultiAgent && (
+											<div className='hitl-expand-section'>
+												<div className='hitl-feedback-row'>
+													<input
+														className='hitl-feedback-input'
+														placeholder='What should be changed?'
+														value={rejectionFeedback}
+														onChange={(e) => onFeedbackChange(e.target.value)}
+														onKeyDown={(e) => {
+															if (e.key === 'Enter')
+																onReject(hitlGate.agent_ids?.[0]);
+														}}
+													/>
+													<button
+														className='btn-approve'
+														onClick={() => onReject(hitlGate.agent_ids?.[0])}
+													>
+														Send
+													</button>
+													<button
+														style={{
+															padding: '7px 14px',
+															background: '#f0f0f0',
+															color: '#666',
+															border: '1px solid #e0e0e0',
+															borderRadius: '6px',
+															fontSize: '12px',
+															fontWeight: 500,
+															cursor: 'pointer',
+														}}
+														onClick={() => {
+															setShowFeedbackInput(false);
+															onFeedbackChange('');
+														}}
+													>
+														Cancel
+													</button>
+												</div>
+											</div>
+										)}
+									</div>
+								);
+							})()}
+
+						{fullscreenAgent &&
+							(() => {
+								const fsConfig = AGENT_CONFIGS[fullscreenAgent];
+								const fsOutput = allAgentStates[fullscreenAgent]?.output || '';
+								return (
+									<div
+										className='fullscreen-overlay'
+										onClick={(e) => {
+											if (e.target === e.currentTarget)
+												setFullscreenAgent(null);
+										}}
+									>
+										<div className='fullscreen-modal'>
+											<div className='fullscreen-header'>
+												<div className='fullscreen-header-left'>
+													<div
+														className='agent-monogram'
+														style={{ backgroundColor: fsConfig.color }}
+													>
+														{fsConfig.monogram}
+													</div>
+													<span className='fullscreen-header-title'>
+														{fsConfig.name}
+													</span>
+												</div>
+												<div className='fullscreen-header-actions'>
+													<button
+														className='btn-small btn-export'
+														onClick={() => {
+															navigator.clipboard.writeText(fsOutput);
+															setCopyFeedback('Copied!');
+															setTimeout(() => setCopyFeedback(''), 2000);
+														}}
+													>
+														{copyFeedback || 'Copy'}
+													</button>
+													<button
+														className='fullscreen-close'
+														onClick={() => setFullscreenAgent(null)}
+													>
+														Close
+													</button>
+												</div>
+											</div>
+											<div className='fullscreen-content'>
+												<div
+													className='markdown-output'
+													dangerouslySetInnerHTML={{
+														__html: DOMPurify.sanitize(marked.parse(fsOutput)),
+													}}
+												/>
+											</div>
+										</div>
+									</div>
+								);
+							})()}
+					</div>
+				);
+			}
+
+			// Activity Log Component
+			function ActivityLog({ entries, open, onToggle }) {
+				const logRef = useRef(null);
+
+				useEffect(() => {
+					if (logRef.current) {
+						logRef.current.scrollTop = logRef.current.scrollHeight;
+					}
+				}, [entries]);
+
+				return (
+					<div className={`bottom-panel ${open ? 'expanded' : 'collapsed'}`}>
+						<div className='bottom-header' onClick={() => onToggle(!open)}>
+							<div className='bottom-title'>
+								<span className={`toggle-arrow ${open ? 'open' : ''}`}>▶</span>
+								<span>Activity Log</span>
+								<span className='activity-log-count'>({entries.length})</span>
+							</div>
+						</div>
+						{open && (
+							<div className='activity-log' ref={logRef}>
+								{entries.map((entry) => {
+									const agentConfig =
+										entry.agent_id && entry.agent_id !== 'system'
+											? AGENT_CONFIGS[entry.agent_id]
+											: null;
+									return (
+										<div key={entry.id} className='log-entry'>
+											<div className='log-time'>{entry.timestamp}</div>
+											{agentConfig ? (
+												<div
+													className='log-monogram'
+													style={{ backgroundColor: agentConfig.color }}
+												>
+													{agentConfig.monogram}
+												</div>
+											) : (
+												<div
+													className='log-monogram'
+													style={{ backgroundColor: '#7c3aed' }}
+												>
+													S
+												</div>
+											)}
+											<div className={`log-message log-${entry.event_type}`}>
+												<strong>{entry.agent_name}</strong> → {entry.message}
+											</div>
+										</div>
+									);
+								})}
+								{entries.length === 0 && (
+									<div
+										style={{
+											color: '#999',
+											fontSize: '11px',
+											padding: '8px 6px',
+										}}
+									>
+										Awaiting pipeline start...
+									</div>
+								)}
+							</div>
+						)}
+					</div>
+				);
+			}
+
+			// Render app
+			const root = ReactDOM.createRoot(document.getElementById('root'));
+			root.render(<MissionControl />);
+		</script>
+	</body>
+</html>
