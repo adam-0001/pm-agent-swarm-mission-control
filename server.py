@@ -1296,11 +1296,11 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         html_path = Path(__file__).parent / "static" / "index.html"
         if html_path.exists():
-            self.set_header("Content-Type", "text/html")
-            self.write(html_path.read_text())
+            self.set_header("Content-Type", "text/html; charset=utf-8")
+            self.write(html_path.read_text(encoding="utf-8"))
         else:
             self.set_status(404)
-            self.write("index.html not found — create static/index.html")
+            self.write("index.html not found - create static/index.html")
 
 
 class HealthHandler(tornado.web.RequestHandler):

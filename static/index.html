@@ -1986,7 +1986,7 @@
 								addLogEntry(
 									'system',
 									'System',
-									'Pipeline complete — all phases succeeded',
+									'Pipeline complete \u2014 all phases succeeded',
 									'success',
 								);
 							} else {
@@ -2306,7 +2306,7 @@
 										<div className='guide-modes-title'>Running Modes</div>
 										<div className='guide-mode-row'>
 											<span className='guide-mode-code'>python server.py</span>{' '}
-											Demo mode — no API key needed
+											Demo mode &mdash; no API key needed
 										</div>
 										<div className='guide-mode-row'>
 											<span className='guide-mode-code'>
@@ -2358,7 +2358,7 @@
 					<div className='header'>
 						<div className='header-left'>
 							<div className='header-title'>
-								PM Agent Swarm — Mission Control
+								PM Agent Swarm &mdash; Mission Control
 							</div>
 							<div className='header-subtitle'>
 								Adam Ketefian | MKTG 454 Ad Hoc | UW Foster School of Business
@@ -2402,7 +2402,7 @@
 								<span>{connected ? 'Connected' : 'Disconnected'}</span>
 							</div>
 							<button className='btn btn-secondary' onClick={onResetPipeline}>
-								<span>⟲</span>
+								<span>&#x27F2;</span>
 								<span>Reset Session</span>
 							</button>
 							{!pipelineComplete ? (
@@ -2414,7 +2414,7 @@
 										showContextPanel ? 'Fill in context data to start' : ''
 									}
 								>
-									<span>▶</span>
+									<span>&#x25B6;</span>
 									<span>Start</span>
 								</button>
 							) : (
@@ -2423,7 +2423,7 @@
 									onClick={onStartPipeline}
 									disabled={pipelineRunning || !connected}
 								>
-									<span>↻</span>
+									<span>&#x21BB;</span>
 									<span>Run Again</span>
 								</button>
 							)}
@@ -2618,7 +2618,7 @@
 				};
 
 				const downloadAllOutputs = () => {
-					let markdown = '# PM Agent Swarm — Pipeline Export\n';
+					let markdown = '# PM Agent Swarm \u2014 Pipeline Export\n';
 					markdown += `Generated: ${new Date().toISOString()}\n\n`;
 
 					AGENT_ORDER.forEach((agentId, idx) => {
@@ -2687,7 +2687,7 @@
 			2. Use a modern web stack (React frontend, Python/Node backend)
 			3. Prioritize the core integration flow first, then add polish
 			4. Include basic error handling and loading states
-			5. Make it demo-ready — this will be shown to stakeholders
+			5. Make it demo-ready \u2014 this will be shown to stakeholders
 
 			Focus on working software over perfection. Ship the core value proposition first.
 			`;
@@ -3192,7 +3192,7 @@
 																			fontSize: '11px',
 																		}}
 																	>
-																		— click to review
+																		&mdash; click to review
 																	</span>
 																</span>
 																<button
