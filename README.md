@@ -83,13 +83,13 @@ python server.py --live
 
 All configuration is via environment variables or `.env` file:
 
-| Variable            | Default             | Description                                         |
-| ------------------- | ------------------- | --------------------------------------------------- |
-| `ANTHROPIC_API_KEY` | —                   | Required for `--live` mode                          |
-| `ANTHROPIC_MODEL`   | `claude-sonnet-4-6` | Model for live mode                                 |
-| `LOCAL_MODEL`       | `qwen3.5:9b`        | Model for `--local` mode (must be pulled in Ollama) |
+| Variable            | Default             | Description                                            |
+| ------------------- | ------------------- | ------------------------------------------------------ |
+| `ANTHROPIC_API_KEY` | —                   | Required for `--live` mode                             |
+| `ANTHROPIC_MODEL`   | `claude-sonnet-4-6` | Model for live mode                                    |
+| `LOCAL_MODEL`       | `qwen3.5:9b`        | Model for `--local` mode (must be pulled in Ollama)    |
 | `MAX_UPLOAD_BYTES`  | `1048576`           | Max upload size in bytes for `/upload` (default: 1 MB) |
-| `PORT`              | `8000`              | Server port                                         |
+| `PORT`              | `8000`              | Server port                                            |
 
 ## Architecture
 

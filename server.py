@@ -832,6 +832,7 @@ class LocalAgentExecutor:
                     {"role": "user", "content": user_message}
                 ],
                 stream=True,
+                stop=["<|endoftext|>", "<|im_start|>", "<|im_end|>", "<|eot_id|>"],
             )
 
             async for chunk in stream:
@@ -902,6 +903,40 @@ class LocalAgentExecutor:
             parts.append("Analyze the provided product and market context.")
 
         return "\n".join(parts)
+
+    @staticmethod
+    def clean_output(text: str) -> str:
+        """Strip thinking tags, ChatML tokens, and other model artifacts from output."""
+        import re
+        # Remove <think>...</think> blocks (reasoning traces from Qwen/DeepSeek)
+        text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+        # Remove orphan opening <think> tags (model didn't close it)
+        text = re.sub(r'<think>.*', '', text, flags=re.DOTALL)
+        # Remove ChatML special tokens
+        for token in ['<|endoftext|>', '<|im_start|>', '<|im_end|>', '<|im_start|>user',
+                      '<|im_start|>assistant', '<|im_start|>system', '<|eot_id|>',
+                      '<|start_header_id|>', '<|end_header_id|>']:
+            text = text.replace(token, '')
+        # Remove "## Final Output Generation:" preamble (Qwen self-narration)
+        final_output_match = re.search(
+            r'## Final Output Generation:.*?\n\*\(Start of Actual Text\)\*\n',
+            text, flags=re.DOTALL)
+        if final_output_match:
+            text = text[final_output_match.end():]
+        # Remove trailing self-correction / verification noise
+        for pattern in [
+            r'\n\*\(Self-Correction.*$',
+            r'\n\*\(Output Complete\).*$',
+            r'\n\*\(End of Response\).*$',
+            r'\n\*\(Confirm:.*$',
+            r'\n\*\(Status:.*$',
+            r'\n\*\(Double check.*$',
+            r"\nLet's generate the response\..*$",
+        ]:
+            text = re.sub(pattern, '', text, flags=re.DOTALL)
+        # Remove stray backtick fences at the end
+        text = re.sub(r'\n```\s*$', '', text.rstrip())
+        return text.strip()
 
 
 # ---------------------------------------------------------------------------
@@ -1096,6 +1131,33 @@ class PipelineOrchestrator:
             context=self.context,
             prior_outputs=self.agent_outputs
         )
+
+        # Clean output for local models (strips thinking tags, ChatML tokens, etc.)
+        if hasattr(self.executor, 'clean_output'):
+            raw = self.agent_outputs[agent_id]
+
+            # Extract <think> content and send to reasoning panel before cleaning
+            import re
+            think_blocks = re.findall(r'<think>(.*?)</think>', raw, flags=re.DOTALL)
+            if think_blocks:
+                thinking_text = "\n".join(b.strip() for b in think_blocks if b.strip())
+                if thinking_text:
+                    await self.broadcast({
+                        "type": "agent_thinking",
+                        "agent_id": agent_id,
+                        "step": thinking_text,
+                        "step_index": 0,
+                        "total_steps": 1,
+                    })
+                    await self.broadcast({"type": "thinking_complete", "agent_id": agent_id})
+
+            cleaned = self.executor.clean_output(raw)
+            if cleaned != raw:
+                self.agent_outputs[agent_id] = cleaned
+                # Send cleaned version to frontend (replace, not append)
+                await self.broadcast({"type": "agent_output", "agent_id": agent_id,
+                                      "text": cleaned, "append": False})
+
         await self._set_status(agent_id, AgentStatus.COMPLETED)
 
     async def _hitl_gate(self, gate_id: str, stage_name: str, description: str,
