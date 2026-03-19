@@ -128,6 +128,7 @@ prototype/
 │   └── competitive_notes.txt
 ├── requirements.txt       # Python dependencies
 ├── .env.example           # Environment variable template
+├── LICENSE                # MIT license
 ├── .gitignore
 └── README.md
 ```
@@ -145,7 +146,7 @@ Sample PM research data is included in `test_data/` for a fictional product call
 
 ## License
 
-Academic project — MKTG 454 Ad Hoc, UW Foster School of Business.
+MIT License. See LICENSE for details.
 
 ## Author
 
