@@ -707,6 +707,19 @@ class LiveAgentExecutor:
                 "message": f"API error: {str(e)}"
             })
 
+    @staticmethod
+    def _run_context_header(context: dict) -> str:
+        """Build a run context header with date/time and product name."""
+        now = datetime.now()
+        header = f"RUN CONTEXT:\n  Date: {now.strftime('%B %d, %Y')}\n  Time: {now.strftime('%I:%M %p')}\n"
+        product_name = ""
+        if context and context.get("product_description"):
+            first_line = context["product_description"].strip().split("\n")[0][:120]
+            product_name = first_line
+        if product_name:
+            header += f"  Product: {product_name}\n"
+        return header
+
     def _build_user_message(self, agent_id: str, context: dict, prior_outputs: dict, rejection_feedback: str) -> str:
         """Build the user message from context and prior agent outputs."""
         if context is None:
@@ -715,6 +728,9 @@ class LiveAgentExecutor:
             prior_outputs = {}
 
         parts = []
+
+        # Add run context (date, time, product)
+        parts.append(self._run_context_header(context))
 
         # Add rejection feedback if revising
         if rejection_feedback:
@@ -742,7 +758,7 @@ class LiveAgentExecutor:
             for prev_agent_id, output in prior_outputs.items():
                 parts.append(f"--- {prev_agent_id.upper()} ---\n{output}\n")
 
-        if not parts:
+        if len(parts) <= 1:  # only the run context header
             parts.append("Analyze the provided product and market context.")
 
         return "\n".join(parts)
@@ -831,6 +847,19 @@ class LocalAgentExecutor:
                 "message": f"Ollama API error: {str(e)}"
             })
 
+    @staticmethod
+    def _run_context_header(context: dict) -> str:
+        """Build a run context header with date/time and product name."""
+        now = datetime.now()
+        header = f"RUN CONTEXT:\n  Date: {now.strftime('%B %d, %Y')}\n  Time: {now.strftime('%I:%M %p')}\n"
+        product_name = ""
+        if context and context.get("product_description"):
+            first_line = context["product_description"].strip().split("\n")[0][:120]
+            product_name = first_line
+        if product_name:
+            header += f"  Product: {product_name}\n"
+        return header
+
     def _build_user_message(self, agent_id: str, context: dict, prior_outputs: dict, rejection_feedback: str) -> str:
         """Build the user message from context and prior agent outputs."""
         if context is None:
@@ -839,6 +868,9 @@ class LocalAgentExecutor:
             prior_outputs = {}
 
         parts = []
+
+        # Add run context (date, time, product)
+        parts.append(self._run_context_header(context))
 
         # Add rejection feedback if revising
         if rejection_feedback:
@@ -866,7 +898,7 @@ class LocalAgentExecutor:
             for prev_agent_id, output in prior_outputs.items():
                 parts.append(f"--- {prev_agent_id.upper()} ---\n{output}\n")
 
-        if not parts:
+        if len(parts) <= 1:  # only the run context header
             parts.append("Analyze the provided product and market context.")
 
         return "\n".join(parts)
